@@ -11,28 +11,13 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\RequestOptions;
 
-class Downloader
+class Downloader extends Transferrer
 {
-    /** @var UrlBuilder */
-    protected $urlBuilder;
-
-    /** @var ?ClientInterface */
-    protected $client;
-
-    public function __construct(string $token, ?ClientInterface $client = null)
-    {
-        $this->urlBuilder = new UrlBuilder($token);
-        $this->client = $client;
-    }
-
-    public function getClient(): ClientInterface
-    {
-        if ($this->client === null) {
-            $this->client = new Client([
-                RequestOptions::VERIFY => CaBundle::getSystemCaRootBundlePath()
-            ]);
-        }
-        return $this->client;
+    public function __construct(
+        string $token,
+        ClientInterface $client = null
+    ) {
+        parent::__construct($token, $client);
     }
 
     public function downloadFromTo(\DateTimeInterface $from, \DateTimeInterface $to): TransactionList

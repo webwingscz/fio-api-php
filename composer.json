@@ -27,6 +27,9 @@
     "php": "~7.4||~8.0",
     "ext-curl": "*",
     "ext-json": "*",
+    "ext-mbstring": "*",
+    "ext-simplexml": "*",
+    "ext-xmlwriter": "*",
     "guzzlehttp/guzzle": "~6.1|~7.0",
     "composer/ca-bundle": "^1.5"
   },
