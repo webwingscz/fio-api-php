@@ -1,7 +1,11 @@
 <?php
 declare(strict_types = 1);
 
-namespace FioApi;
+namespace FioApi\Download;
+
+use FioApi\Download\Entity\Account;
+use FioApi\Download\Entity\Transaction;
+use FioApi\Download\Entity\TransactionList;
 
 use PHPUnit\Framework\Assert;
 

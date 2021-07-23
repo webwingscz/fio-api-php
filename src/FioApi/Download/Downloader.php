@@ -1,11 +1,12 @@
 <?php
 declare(strict_types = 1);
 
-namespace FioApi;
+namespace FioApi\Download;
 
-use Composer\CaBundle\CaBundle;
+use FioApi\Download\Entity\TransactionList;
 use FioApi\Exceptions\InternalErrorException;
 use FioApi\Exceptions\TooGreedyException;
+use FioApi\Transferrer;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\BadResponseException;
