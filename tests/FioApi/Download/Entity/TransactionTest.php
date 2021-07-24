@@ -1,9 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace FioApi\Download;
-
-use FioApi\Download\Entity\Transaction;
+namespace FioApi\Download\Entity;
 
 use PHPUnit\Framework\Assert;
 
@@ -11,7 +9,7 @@ class TransactionTest extends \PHPUnit\Framework\TestCase
 {
     public function testAccountValuesAreProperlySet(): void
     {
-        $transaction = json_decode((string) file_get_contents(__DIR__ . '/data/example-transaction.json'));
+        $transaction = json_decode((string) file_get_contents(__DIR__ . '/../data/example-transaction.json'));
 
         $transaction = Transaction::create($transaction);
 
