@@ -1,38 +1,24 @@
 <?php
 declare(strict_types = 1);
 
-namespace FioApi;
+namespace FioApi\Download;
 
-use Composer\CaBundle\CaBundle;
+use FioApi\Download\Entity\TransactionList;
 use FioApi\Exceptions\InternalErrorException;
 use FioApi\Exceptions\TooGreedyException;
+use FioApi\Transferrer;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\RequestOptions;
 
-class Downloader
+class Downloader extends Transferrer
 {
-    /** @var UrlBuilder */
-    protected $urlBuilder;
-
-    /** @var ?ClientInterface */
-    protected $client;
-
-    public function __construct(string $token, ?ClientInterface $client = null)
-    {
-        $this->urlBuilder = new UrlBuilder($token);
-        $this->client = $client;
-    }
-
-    public function getClient(): ClientInterface
-    {
-        if ($this->client === null) {
-            $this->client = new Client([
-                RequestOptions::VERIFY => CaBundle::getSystemCaRootBundlePath()
-            ]);
-        }
-        return $this->client;
+    public function __construct(
+        string $token,
+        ?ClientInterface $client = null
+    ) {
+        parent::__construct($token, $client);
     }
 
     public function downloadFromTo(\DateTimeInterface $from, \DateTimeInterface $to): TransactionList
