@@ -18,13 +18,16 @@ class UploaderTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider accountFromProvider
      */
-    public function testInvalidAccountFromResultsInUnexpectedPaymentOrderValueException(string $accountFrom)
+    public function testInvalidAccountFromResultsInUnexpectedPaymentOrderValueException(string $accountFrom): void
     {
         $this->expectException(UnexpectedPaymentOrderValueException::class);
 
         new Uploader('testToken', $accountFrom);
     }
 
+    /**
+     * @return array<string, array{0: string}>
+     */
     public function accountFromProvider(): array
     {
         return [
@@ -33,15 +36,15 @@ class UploaderTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    public function testAddPaymentOrderToUploader()
+    public function testAddPaymentOrderToUploader(): void
     {
         $uploader = new Uploader('testToken', '123456489');
         $uploader->addPaymentOrder($this->createStub(PaymentOrderCzech::class));
 
-        $this->assertFalse($uploader->getPaymentOrderList()->isEmpty());
+        self::assertFalse($uploader->getPaymentOrderList()->isEmpty());
     }
 
-    public function testUploadingWithoutPaymentOrderResultsInMissingPaymentOrderException()
+    public function testUploadingWithoutPaymentOrderResultsInMissingPaymentOrderException(): void
     {
         $uploader = new Uploader('testToken', '123456489');
 
@@ -50,10 +53,10 @@ class UploaderTest extends \PHPUnit\Framework\TestCase
         $uploader->uploadPaymentOrders();
     }
 
-    public function testUploaderUploadsPaymentOrders()
+    public function testUploaderUploadsPaymentOrders(): Uploader
     {
         $handler = HandlerStack::create(new MockHandler([
-            new Response(200, [], file_get_contents(__DIR__ . '/data/example-response-success.xml')),
+            new Response(200, [], $this->readFixture('example-response-success.xml')),
         ]));
         $uploader = new Uploader(
             'testToken',
@@ -64,7 +67,7 @@ class UploaderTest extends \PHPUnit\Framework\TestCase
         $uploader->addPaymentOrder($this->createStub(PaymentOrderCzech::class));
         $response = $uploader->uploadPaymentOrders();
 
-        $this->assertInstanceOf(UploadResponse::class, $response);
+        self::assertSame(UploadResponse::class, $response::class);
 
         return $uploader;
     }
@@ -72,8 +75,16 @@ class UploaderTest extends \PHPUnit\Framework\TestCase
     /**
      * @depends testUploaderUploadsPaymentOrders
      */
-    public function testUploaderClearPaymentOrdersAfterUpload(Uploader $uploader)
+    public function testUploaderClearPaymentOrdersAfterUpload(Uploader $uploader): void
     {
-        $this->assertTrue($uploader->getPaymentOrderList()->isEmpty());
+        self::assertTrue($uploader->getPaymentOrderList()->isEmpty());
+    }
+
+    private function readFixture(string $fixture): string
+    {
+        $content = file_get_contents(__DIR__ . '/data/' . $fixture);
+        self::assertIsString($content);
+
+        return $content;
     }
 }

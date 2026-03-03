@@ -27,7 +27,7 @@ class PaymentOrderList
 
     public function isEmpty(): bool
     {
-        return empty($this->paymentOrders);
+        return count($this->paymentOrders) === 0;
     }
 
     public function clear(): void

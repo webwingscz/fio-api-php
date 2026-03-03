@@ -34,7 +34,16 @@ class PaymentOrderInternational extends PaymentOrderForeign
         ?string $remittanceInfo4 = null,
         ?string $comment = null
     ) {
-        parent::__construct($currency, $amount, $accountTo, $date, $benefName, $comment, $remittanceInfo2, $remittanceInfo3);
+        parent::__construct(
+            $currency,
+            $amount,
+            $accountTo,
+            $date,
+            $benefName,
+            $comment,
+            $remittanceInfo2,
+            $remittanceInfo3
+        );
 
         $this->setBic($bic)
             ->setBenefStreet($benefStreet)
@@ -48,7 +57,11 @@ class PaymentOrderInternational extends PaymentOrderForeign
         }
     }
 
-    public function toArray(): array {
+    /**
+     * @return array<string, float|int|string|null>
+     */
+    public function toArray(): array
+    {
         return array_merge(
             parent::toArray(),
             $this->foreignOrderPropertiesToArray(),

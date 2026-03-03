@@ -55,7 +55,11 @@ abstract class PaymentOrderForeign extends PaymentOrder
         }
     }
 
-    protected function foreignOrderPropertiesToArray(): array {
+    /**
+     * @return array<string, string|null>
+     */
+    protected function foreignOrderPropertiesToArray(): array
+    {
         return [
             static::BIC_NAME => $this->getBic(),
             static::DATE_NAME => $this->getDate(),
@@ -70,15 +74,15 @@ abstract class PaymentOrderForeign extends PaymentOrder
         ];
     }
 
-    public abstract function getBic(): ?string;
+    abstract public function getBic(): ?string;
 
-    public abstract function getBenefStreet(): ?string;
+    abstract public function getBenefStreet(): ?string;
 
-    public abstract function getBenefCity(): ?string;
+    abstract public function getBenefCity(): ?string;
 
-    public abstract function getBenefCountry(): ?string;
+    abstract public function getBenefCountry(): ?string;
 
-    public abstract function getRemittanceInfo1(): ?string;
+    abstract public function getRemittanceInfo1(): ?string;
 
     public function getBenefName(): string
     {
@@ -180,7 +184,11 @@ abstract class PaymentOrderForeign extends PaymentOrder
         }
         if (strlen($benefCountry) > self::BENEF_COUNTRY_MAX_LENGTH) {
             throw new UnexpectedPaymentOrderValueException(
-                sprintf('Benef country "%s" has to contain %s characters at maximum.', $benefCountry, self::BENEF_COUNTRY_MAX_LENGTH)
+                sprintf(
+                    'Benef country "%s" has to contain %s characters at maximum.',
+                    $benefCountry,
+                    self::BENEF_COUNTRY_MAX_LENGTH
+                )
             );
         }
         return $benefCountry;

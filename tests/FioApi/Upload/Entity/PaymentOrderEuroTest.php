@@ -9,12 +9,17 @@ class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider paymentOrderProvider
+     *
+     * @param array<string, float|int|string|null> $expected
      */
-    public function testPaymentOrderEuroCorrectlyConvertsToArray(array $expected, PaymentOrderEuro $paymentOrder)
+    public function testPaymentOrderEuroCorrectlyConvertsToArray(array $expected, PaymentOrderEuro $paymentOrder): void
     {
-        $this->assertSame($expected, $paymentOrder->toArray());
+        self::assertSame($expected, $paymentOrder->toArray());
     }
 
+    /**
+     * @return array<string, array{0: array<string, float|int|string|null>, 1: PaymentOrderEuro}>
+     */
     public function paymentOrderProvider(): array
     {
         return [
@@ -43,7 +48,7 @@ class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
                     'EUR',
                     50.53,
                     'AT611904300234573201',
-                    \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22'),
+                    new \DateTimeImmutable('2021-07-22'),
                     'Hans Gruber',
                     'Gugitzgasse 2',
                     'Wien',
@@ -85,14 +90,14 @@ class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
                     'EUR',
                     50.53,
                     'AT611904300234573201',
-                    \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22'),
+                    new \DateTimeImmutable('2021-07-22'),
                     'Hans Gruber'
                 )
             ],
         ];
     }
 
-    public function testInvalidCurrencyResultsInUnexpectedPaymentOrderValueException()
+    public function testInvalidCurrencyResultsInUnexpectedPaymentOrderValueException(): void
     {
         $this->expectException(UnexpectedPaymentOrderValueException::class);
 
@@ -100,12 +105,12 @@ class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
             'EURO',
             50.53,
             'AT611904300234573201',
-            \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22'),
+            new \DateTimeImmutable('2021-07-22'),
             'Hans Gruber'
         );
     }
 
-    public function testInvalidAccountToResultsInUnexpectedPaymentOrderValueException()
+    public function testInvalidAccountToResultsInUnexpectedPaymentOrderValueException(): void
     {
         $this->expectException(UnexpectedPaymentOrderValueException::class);
 
@@ -113,7 +118,7 @@ class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
             'EUR',
             50.53,
             'AT611904300234573201904300234573201',
-            \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22'),
+            new \DateTimeImmutable('2021-07-22'),
             'Hans Gruber'
         );
     }
@@ -121,7 +126,7 @@ class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider bicProvider
      */
-    public function testInvalidBicResultsInUnexpectedPaymentOrderValueException(string $bic)
+    public function testInvalidBicResultsInUnexpectedPaymentOrderValueException(string $bic): void
     {
         $this->expectException(UnexpectedPaymentOrderValueException::class);
 
@@ -129,7 +134,7 @@ class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
             'EUR',
             50.53,
             'AT611904300234573201',
-            \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22'),
+            new \DateTimeImmutable('2021-07-22'),
             'Hans Gruber',
             'Gugitzgasse 2',
             'Wien',
@@ -141,6 +146,9 @@ class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
         );
     }
 
+    /**
+     * @return array<string, array{0: string}>
+     */
     public function bicProvider(): array
     {
         return [
@@ -152,7 +160,7 @@ class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider benefCountryProvider
      */
-    public function testInvalidBenefCountryResultsInUnexpectedPaymentOrderValueException(string $benefCountry)
+    public function testInvalidBenefCountryResultsInUnexpectedPaymentOrderValueException(string $benefCountry): void
     {
         $this->expectException(UnexpectedPaymentOrderValueException::class);
 
@@ -160,7 +168,7 @@ class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
             'EUR',
             50.53,
             'AT611904300234573201',
-            \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22'),
+            new \DateTimeImmutable('2021-07-22'),
             'Hans Gruber',
             'Gugitzgasse 2',
             'Wien',
@@ -168,6 +176,9 @@ class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
         );
     }
 
+    /**
+     * @return array<string, array{0: string}>
+     */
     public function benefCountryProvider(): array
     {
         return [

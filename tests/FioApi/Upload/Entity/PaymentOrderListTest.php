@@ -5,38 +5,38 @@ namespace FioApi\Upload\Entity;
 
 class PaymentOrderListTest extends \PHPUnit\Framework\TestCase
 {
-    public function testAddPaymentOrderToPaymentOrderList()
+    public function testAddPaymentOrderToPaymentOrderList(): PaymentOrderList
     {
         $paymentOrderList = new PaymentOrderList();
         $paymentOrderList->addPaymentOrder($this->createStub(PaymentOrderCzech::class));
 
-        $this->assertInstanceOf(PaymentOrderCzech::class, $paymentOrderList->getPaymentOrders()[0]);
+        self::assertInstanceOf(PaymentOrderCzech::class, $paymentOrderList->getPaymentOrders()[0]);
 
         return $paymentOrderList;
     }
 
-    public function testIsEmptyReturnsTrueIfNoPaymentOrders()
+    public function testIsEmptyReturnsTrueIfNoPaymentOrders(): void
     {
         $paymentOrderList = new PaymentOrderList();
 
-        $this->assertTrue($paymentOrderList->isEmpty());
+        self::assertTrue($paymentOrderList->isEmpty());
     }
 
     /**
      * @depends testAddPaymentOrderToPaymentOrderList
      */
-    public function testIsEmptyReturnsFalseIfPaymentOrderAlreadyAdded(PaymentOrderList $paymentOrderList)
+    public function testIsEmptyReturnsFalseIfPaymentOrderAlreadyAdded(PaymentOrderList $paymentOrderList): void
     {
-        $this->assertFalse($paymentOrderList->isEmpty());
+        self::assertFalse($paymentOrderList->isEmpty());
     }
 
     /**
      * @depends testAddPaymentOrderToPaymentOrderList
      */
-    public function testClearDeleteAllPaymentOrders(PaymentOrderList $paymentOrderList)
+    public function testClearDeleteAllPaymentOrders(PaymentOrderList $paymentOrderList): void
     {
         $paymentOrderList->clear();
 
-        $this->assertEmpty($paymentOrderList->getPaymentOrders());
+        self::assertEmpty($paymentOrderList->getPaymentOrders());
     }
 }

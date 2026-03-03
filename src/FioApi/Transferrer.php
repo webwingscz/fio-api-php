@@ -13,13 +13,13 @@ abstract class Transferrer
 
     protected function __construct(
         string $token,
-        ClientInterface $client = null
+        ?ClientInterface $client = null
     ) {
         $this->urlBuilder = new UrlBuilder($token);
         $this->client = $client;
     }
 
-    public function setCertificatePath(string $path)
+    public function setCertificatePath(string $path): void
     {
         $this->certificatePath = $path;
     }

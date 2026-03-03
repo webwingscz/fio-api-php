@@ -16,7 +16,7 @@ class Downloader extends Transferrer
 {
     public function __construct(
         string $token,
-        ClientInterface $client = null
+        ?ClientInterface $client = null
     ) {
         parent::__construct($token, $client);
     }

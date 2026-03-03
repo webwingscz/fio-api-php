@@ -13,7 +13,11 @@ class PaymentOrderCzech extends PaymentOrder
     public const PAYMENT_TYPE_PRIORITY = 431005;
     public const PAYMENT_TYPE_COLLECTION = 431022;
 
-    protected const PAYMENT_TYPES = [self::PAYMENT_TYPE_STANDARD, self::PAYMENT_TYPE_PRIORITY, self::PAYMENT_TYPE_COLLECTION];
+    protected const PAYMENT_TYPES = [
+        self::PAYMENT_TYPE_STANDARD,
+        self::PAYMENT_TYPE_PRIORITY,
+        self::PAYMENT_TYPE_COLLECTION,
+    ];
     protected const BANK_CODE_NAME = 'bankCode';
     protected const MESSAGE_FOR_RECIPIENT_NAME = 'messageForRecipient';
     protected const MESSAGE_FOR_RECIPIENT_MAX_LENGTH = 140;
@@ -60,7 +64,11 @@ class PaymentOrderCzech extends PaymentOrder
         }
     }
 
-    public function toArray(): array {
+    /**
+     * @return array<string, float|int|string|null>
+     */
+    public function toArray(): array
+    {
         return array_merge(
             parent::toArray(),
             [ static::BANK_CODE_NAME => $this->getBankCode() ],
@@ -121,9 +129,11 @@ class PaymentOrderCzech extends PaymentOrder
 
     protected static function validateAccountTo(string $accountTo): string
     {
-        if (!preg_match('/^(\d{2,6}-)?\d{2,10}$/', $accountTo)) {
+        if (preg_match('/^(\d{2,6}-)?\d{2,10}$/', $accountTo) !== 1) {
             throw new UnexpectedPaymentOrderValueException(
-                'Account has to be in this format: "prefix-base". Prefix is optional and contains 2-6 digits. Base contains 2-10 digits.'
+                'Account has to be in this format: "prefix-base". '
+                . 'Prefix is optional and contains 2-6 digits. '
+                . 'Base contains 2-10 digits.'
             );
         }
         return $accountTo;

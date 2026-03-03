@@ -40,7 +40,11 @@ class UploadResponse
     public function getIdInstruction(): ?int
     {
         $idInstruction = $this->getResult()->idInstruction;
-        return empty($idInstruction) ? null : (int) $idInstruction;
+        if ($idInstruction->count() === 0 && trim((string) $idInstruction) === '') {
+            return null;
+        }
+
+        return (int) $idInstruction;
     }
 
     protected function getResult(): SimpleXMLElement

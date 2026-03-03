@@ -5,38 +5,46 @@ namespace FioApi\Upload\Entity;
 
 class UploadResponseTest extends \PHPUnit\Framework\TestCase
 {
-    public function testHasUploadSucceededReturnsTrueIfSuccessResponse()
+    public function testHasUploadSucceededReturnsTrueIfSuccessResponse(): void
     {
-        $response = new UploadResponse(file_get_contents(__DIR__ . '/../data/example-response-success.xml'));
+        $response = new UploadResponse($this->readFixture('example-response-success.xml'));
 
-        $this->assertTrue($response->hasUploadSucceeded());
+        self::assertTrue($response->hasUploadSucceeded());
     }
 
-    public function testHasUploadSucceededReturnsFalseIfErrorResponse()
+    public function testHasUploadSucceededReturnsFalseIfErrorResponse(): void
     {
-        $response = new UploadResponse(file_get_contents(__DIR__ . '/../data/example-response-error.xml'));
+        $response = new UploadResponse($this->readFixture('example-response-error.xml'));
 
-        $this->assertFalse($response->hasUploadSucceeded());
+        self::assertFalse($response->hasUploadSucceeded());
     }
 
-    public function testGetCodeReturnsErrorCodeIfErrorResponse()
+    public function testGetCodeReturnsErrorCodeIfErrorResponse(): void
     {
-        $response = new UploadResponse(file_get_contents(__DIR__ . '/../data/example-response-error.xml'));
+        $response = new UploadResponse($this->readFixture('example-response-error.xml'));
 
-        $this->assertSame(1, $response->getCode());
+        self::assertSame(1, $response->getCode());
     }
 
-    public function testGetIdInstructionReturnsInstructionIdIfSuccessResponse()
+    public function testGetIdInstructionReturnsInstructionIdIfSuccessResponse(): void
     {
-        $response = new UploadResponse(file_get_contents(__DIR__ . '/../data/example-response-success.xml'));
+        $response = new UploadResponse($this->readFixture('example-response-success.xml'));
 
-        $this->assertSame(1385186, $response->getIdInstruction());
+        self::assertSame(1385186, $response->getIdInstruction());
     }
 
-    public function testGetIdInstructionReturnsNullIfErrorResponse()
+    public function testGetIdInstructionReturnsNullIfErrorResponse(): void
     {
-        $response = new UploadResponse(file_get_contents(__DIR__ . '/../data/example-response-error.xml'));
+        $response = new UploadResponse($this->readFixture('example-response-error.xml'));
 
-        $this->assertNull($response->getIdInstruction());
+        self::assertNull($response->getIdInstruction());
+    }
+
+    private function readFixture(string $fixture): string
+    {
+        $content = file_get_contents(__DIR__ . '/../data/' . $fixture);
+        self::assertIsString($content);
+
+        return $content;
     }
 }

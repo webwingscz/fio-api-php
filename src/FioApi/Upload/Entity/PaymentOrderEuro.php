@@ -34,7 +34,16 @@ class PaymentOrderEuro extends PaymentOrderForeign
         ?int $paymentReason = null,
         ?int $paymentType = null
     ) {
-        parent::__construct($currency, $amount, $accountTo, $date, $benefName, $comment, $remittanceInfo2, $remittanceInfo3);
+        parent::__construct(
+            $currency,
+            $amount,
+            $accountTo,
+            $date,
+            $benefName,
+            $comment,
+            $remittanceInfo2,
+            $remittanceInfo3
+        );
 
         if ($benefStreet !== null) {
             $this->setBenefStreet($benefStreet);
@@ -68,7 +77,11 @@ class PaymentOrderEuro extends PaymentOrderForeign
         }
     }
 
-    public function toArray(): array {
+    /**
+     * @return array<string, float|int|string|null>
+     */
+    public function toArray(): array
+    {
         return array_merge(
             parent::toArray(),
             $this->symbolsToArray(),

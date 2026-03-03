@@ -13,7 +13,7 @@ use XMLWriter;
 
 class XmlFileBuilder implements FileBuilder
 {
-    protected ?XMLWriter $xml;
+    protected ?XMLWriter $xml = null;
 
     // this array has to be sorted according to right order of payments types required by Fio API for XML files
     protected const PAYMENT_ORDER_TYPES_SORTED = [
@@ -44,6 +44,9 @@ class XmlFileBuilder implements FileBuilder
         return $this->endDocument();
     }
 
+    /**
+     * @return array<string, list<PaymentOrder>>
+     */
     protected static function segmentPaymentOrdersByType(PaymentOrderList $paymentOrderList): array
     {
         $segmentedArray = [];
@@ -51,7 +54,9 @@ class XmlFileBuilder implements FileBuilder
             $paymentOrderClassName = get_class($paymentOrder);
             $segmentName = self::PAYMENT_ORDER_TYPES_SORTED[$paymentOrderClassName] ?? null;
             if ($segmentName === null) {
-                throw new UnexpectedPaymentOrderClassException(sprintf('Unknown payment order class "%s".', $paymentOrderClassName));
+                throw new UnexpectedPaymentOrderClassException(
+                    sprintf('Unknown payment order class "%s".', $paymentOrderClassName)
+                );
             }
             $segmentedArray[$segmentName][] = $paymentOrder;
         }
@@ -61,34 +66,49 @@ class XmlFileBuilder implements FileBuilder
     protected function createEmptyXml(): void
     {
         $this->xml = new XMLWriter;
-        $this->xml->openMemory();
-        $this->xml->startDocument('1.0', 'UTF-8');
-        $this->xml->startElement('Import');
-        $this->xml->writeAttribute('xmlns:xsi', 'https://www.w3.org/2001/XMLSchema-instance');
-        $this->xml->writeAttribute('xsi:noNamespaceSchemaLocation', 'https://www.fio.cz/schema/importIB.xsd');
-        $this->xml->startElement('Orders');
+        $xml = $this->getXml();
+        $xml->openMemory();
+        $xml->startDocument('1.0', 'UTF-8');
+        $xml->startElement('Import');
+        $xml->writeAttribute('xmlns:xsi', 'https://www.w3.org/2001/XMLSchema-instance');
+        $xml->writeAttribute('xsi:noNamespaceSchemaLocation', 'https://www.fio.cz/schema/importIB.xsd');
+        $xml->startElement('Orders');
     }
 
-    protected function createXmlFromPaymentOrder(string $paymentOrderType, PaymentOrder $paymentOrder, string $accountFrom): void
-    {
-        $this->xml->startElement($paymentOrderType);
+    protected function createXmlFromPaymentOrder(
+        string $paymentOrderType,
+        PaymentOrder $paymentOrder,
+        string $accountFrom
+    ): void {
+        $xml = $this->getXml();
+        $xml->startElement($paymentOrderType);
 
-        $this->xml->writeElement('accountFrom', $accountFrom);
+        $xml->writeElement('accountFrom', $accountFrom);
 
         foreach ($paymentOrder->toArray() as $node => $value) {
             if ($value !== null) {
-                $this->xml->writeElement($node, htmlspecialchars((string) $value));
+                $xml->writeElement($node, htmlspecialchars((string) $value));
             }
         }
 
-        $this->xml->endElement();
+        $xml->endElement();
     }
 
     protected function endDocument(): string
     {
-        $this->xml->endDocument();
-        $output = $this->xml->outputMemory();
+        $xml = $this->getXml();
+        $xml->endDocument();
+        $output = $xml->outputMemory();
         $this->xml = null;
         return $output;
+    }
+
+    protected function getXml(): XMLWriter
+    {
+        if ($this->xml === null) {
+            throw new \LogicException('XML writer has not been initialized.');
+        }
+
+        return $this->xml;
     }
 }

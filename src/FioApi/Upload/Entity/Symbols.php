@@ -11,7 +11,11 @@ trait Symbols
     protected string $variableSymbol;
     protected string $specificSymbol;
 
-    protected function symbolsToArray(): array {
+    /**
+     * @return array<string, string|null>
+     */
+    protected function symbolsToArray(): array
+    {
         return [
             'ks' => $this->getConstantSymbol(),
             'vs' => $this->getVariableSymbol(),

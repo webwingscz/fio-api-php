@@ -9,12 +9,19 @@ class PaymentOrderInternationalTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider paymentOrderProvider
+     *
+     * @param array<string, float|int|string|null> $expected
      */
-    public function testPaymentOrderInternationalCorrectlyConvertsToArray(array $expected, PaymentOrderInternational $paymentOrder)
-    {
-        $this->assertSame($expected, $paymentOrder->toArray());
+    public function testPaymentOrderInternationalCorrectlyConvertsToArray(
+        array $expected,
+        PaymentOrderInternational $paymentOrder
+    ): void {
+        self::assertSame($expected, $paymentOrder->toArray());
     }
 
+    /**
+     * @return array<string, array{0: array<string, float|int|string|null>, 1: PaymentOrderInternational}>
+     */
     public function paymentOrderProvider(): array
     {
         return [
@@ -42,7 +49,7 @@ class PaymentOrderInternationalTest extends \PHPUnit\Framework\TestCase
                     50.53,
                     'PK36SCBL0000001123456702',
                     'ALFHPKKAXXX',
-                    \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22'),
+                    new \DateTimeImmutable('2021-07-22'),
                     'Amir Khan',
                     'Nishtar Rd 13',
                     'Karachi',
@@ -80,7 +87,7 @@ class PaymentOrderInternationalTest extends \PHPUnit\Framework\TestCase
                     50.53,
                     'PK36SCBL0000001123456702',
                     'ALFHPKKAXXX',
-                    \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22'),
+                    new \DateTimeImmutable('2021-07-22'),
                     'Amir Khan',
                     'Nishtar Rd 13',
                     'Karachi',
@@ -93,7 +100,7 @@ class PaymentOrderInternationalTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    public function testInvalidPaymentReasonResultsInUnexpectedPaymentOrderValueException()
+    public function testInvalidPaymentReasonResultsInUnexpectedPaymentOrderValueException(): void
     {
         $this->expectException(UnexpectedPaymentOrderValueException::class);
 
@@ -102,7 +109,7 @@ class PaymentOrderInternationalTest extends \PHPUnit\Framework\TestCase
             50.53,
             'PK36SCBL0000001123456702',
             'ALFHPKKAXXX',
-            \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22'),
+            new \DateTimeImmutable('2021-07-22'),
             'Amir Khan',
             'Nishtar Rd 13',
             'Karachi',
@@ -113,7 +120,7 @@ class PaymentOrderInternationalTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testInvalidDetailsOfChargesResultsInUnexpectedPaymentOrderValueException()
+    public function testInvalidDetailsOfChargesResultsInUnexpectedPaymentOrderValueException(): void
     {
         $this->expectException(UnexpectedPaymentOrderValueException::class);
 
@@ -122,7 +129,7 @@ class PaymentOrderInternationalTest extends \PHPUnit\Framework\TestCase
             50.53,
             'PK36SCBL0000001123456702',
             'ALFHPKKAXXX',
-            \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22'),
+            new \DateTimeImmutable('2021-07-22'),
             'Amir Khan',
             'Nishtar Rd 13',
             'Karachi',
@@ -133,7 +140,7 @@ class PaymentOrderInternationalTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testInvalidBenefNameResultsInUnexpectedPaymentOrderValueException()
+    public function testInvalidBenefNameResultsInUnexpectedPaymentOrderValueException(): void
     {
         $this->expectException(UnexpectedPaymentOrderValueException::class);
 
@@ -142,7 +149,7 @@ class PaymentOrderInternationalTest extends \PHPUnit\Framework\TestCase
             50.53,
             'PK36SCBL0000001123456702',
             'ALFHPKKAXXX',
-            \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22'),
+            new \DateTimeImmutable('2021-07-22'),
             'Amiramiramiram Khankhan Khankhankhan',
             'Nishtar Rd 13',
             'Karachi',

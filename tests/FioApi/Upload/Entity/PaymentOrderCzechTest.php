@@ -9,12 +9,19 @@ class PaymentOrderCzechTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider paymentOrderProvider
+     *
+     * @param array<string, float|int|string|null> $expected
      */
-    public function testPaymentOrderCzechCorrectlyConvertsToArray(array $expected, PaymentOrderCzech $paymentOrder)
-    {
-        $this->assertSame($expected, $paymentOrder->toArray());
+    public function testPaymentOrderCzechCorrectlyConvertsToArray(
+        array $expected,
+        PaymentOrderCzech $paymentOrder
+    ): void {
+        self::assertSame($expected, $paymentOrder->toArray());
     }
 
+    /**
+     * @return array<string, array{0: array<string, float|int|string|null>, 1: PaymentOrderCzech}>
+     */
     public function paymentOrderProvider(): array
     {
         return [
@@ -38,7 +45,7 @@ class PaymentOrderCzechTest extends \PHPUnit\Framework\TestCase
                     100.0,
                     '2212-2000000699',
                     '0300',
-                    \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22'),
+                    new \DateTimeImmutable('2021-07-22'),
                     '0558',
                     '1234567890',
                     '0987654321',
@@ -68,13 +75,13 @@ class PaymentOrderCzechTest extends \PHPUnit\Framework\TestCase
                     100.0,
                     '2212-2000000699',
                     '0300',
-                    \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22')
+                    new \DateTimeImmutable('2021-07-22')
                 )
             ],
         ];
     }
 
-    public function testInvalidAmountResultsInUnexpectedPaymentOrderValueException()
+    public function testInvalidAmountResultsInUnexpectedPaymentOrderValueException(): void
     {
         $this->expectException(UnexpectedPaymentOrderValueException::class);
 
@@ -83,11 +90,11 @@ class PaymentOrderCzechTest extends \PHPUnit\Framework\TestCase
             -100.0,
             '22122000000699',
             '0300',
-            \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22')
+            new \DateTimeImmutable('2021-07-22')
         );
     }
 
-    public function testInvalidAccountToResultsInUnexpectedPaymentOrderValueException()
+    public function testInvalidAccountToResultsInUnexpectedPaymentOrderValueException(): void
     {
         $this->expectException(UnexpectedPaymentOrderValueException::class);
 
@@ -96,14 +103,14 @@ class PaymentOrderCzechTest extends \PHPUnit\Framework\TestCase
             100.0,
             '22122000000699',
             '0300',
-            \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22')
+            new \DateTimeImmutable('2021-07-22')
         );
     }
 
     /**
      * @dataProvider bankCodeProvider
      */
-    public function testInvalidBankCodeResultsInUnexpectedPaymentOrderValueException(string $bankCode)
+    public function testInvalidBankCodeResultsInUnexpectedPaymentOrderValueException(string $bankCode): void
     {
         $this->expectException(UnexpectedPaymentOrderValueException::class);
 
@@ -112,10 +119,13 @@ class PaymentOrderCzechTest extends \PHPUnit\Framework\TestCase
             100.0,
             '2212-2000000699',
             $bankCode,
-            \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22')
+            new \DateTimeImmutable('2021-07-22')
         );
     }
 
+    /**
+     * @return array<string, array{0: string}>
+     */
     public function bankCodeProvider(): array
     {
         return [
@@ -127,21 +137,24 @@ class PaymentOrderCzechTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider variableSymbolProvider
      */
-    public function testInvalidVariableSymbolResultsInUnexpectedPaymentOrderValueException(string $variableSymbol)
+    public function testInvalidVariableSymbolResultsInUnexpectedPaymentOrderValueException(string $variableSymbol): void
     {
         $this->expectException(UnexpectedPaymentOrderValueException::class);
 
-         new PaymentOrderCzech(
+        new PaymentOrderCzech(
             'CZK',
             100.0,
             '2212-2000000699',
             '0300',
-            \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22'),
+            new \DateTimeImmutable('2021-07-22'),
             '0558',
-             $variableSymbol
+            $variableSymbol
         );
     }
 
+    /**
+     * @return array<string, array{0: string}>
+     */
     public function variableSymbolProvider(): array
     {
         return [

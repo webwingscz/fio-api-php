@@ -42,7 +42,11 @@ abstract class PaymentOrder
         }
     }
 
-    public function toArray(): array {
+    /**
+     * @return array<string, float|int|string|null>
+     */
+    public function toArray(): array
+    {
         return [
             static::CURRENCY_NAME => $this->getCurrency(),
             static::AMOUNT_NAME => $this->getAmount(),
@@ -50,7 +54,7 @@ abstract class PaymentOrder
         ];
     }
 
-    public abstract function getPaymentReason(): ?int;
+    abstract public function getPaymentReason(): ?int;
 
     public function getCurrency(): string
     {
@@ -80,7 +84,7 @@ abstract class PaymentOrder
     /** @return static */
     protected function setCurrency(string $currency)
     {
-        if (!preg_match('/^[a-z]{3}$/i', $currency)) {
+        if (preg_match('/^[a-z]{3}$/i', $currency) !== 1) {
             throw new UnexpectedPaymentOrderValueException('Currency code has to match ISO 4217.');
         }
         $this->currency = strtoupper($currency);
@@ -123,7 +127,12 @@ abstract class PaymentOrder
     {
         if ($paymentReason < self::PAYMENT_REASON_MIN || $paymentReason > self::PAYMENT_REASON_MAX) {
             throw new UnexpectedPaymentOrderValueException(
-                sprintf('Payment reason "%s" is out of allowed range %s - %s.', $paymentReason, self::PAYMENT_REASON_MIN, self::PAYMENT_REASON_MAX)
+                sprintf(
+                    'Payment reason "%s" is out of allowed range %s - %s.',
+                    $paymentReason,
+                    self::PAYMENT_REASON_MIN,
+                    self::PAYMENT_REASON_MAX
+                )
             );
         }
         $this->paymentReason = $paymentReason;
@@ -142,6 +151,9 @@ abstract class PaymentOrder
         return $text;
     }
 
+    /**
+     * @param array<int, int> $list
+     */
     protected static function validateValueIsInList(int $value, array $list): int
     {
         if (in_array($value, $list, true) === false) {

@@ -10,14 +10,14 @@ use FioApi\Upload\Entity\PaymentOrderList;
 
 class XmlFileBuilderTest extends \PHPUnit\Framework\TestCase
 {
-    public function testXmlFileBuilderCreatesCorrectXmlFromPaymentOrderList()
+    public function testXmlFileBuilderCreatesCorrectXmlFromPaymentOrderList(): void
     {
         $paymentOrderCzech = new PaymentOrderCzech(
             'CZK',
             100.0,
             '2212-2000000699',
             '0300',
-            \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22'),
+            new \DateTimeImmutable('2021-07-22'),
             '0558',
             '1234567890',
             '0987654321',
@@ -31,7 +31,7 @@ class XmlFileBuilderTest extends \PHPUnit\Framework\TestCase
             'EUR',
             50.53,
             'AT611904300234573201',
-            \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22'),
+            new \DateTimeImmutable('2021-07-22'),
             'Hans Gruber',
             'Gugitzgasse 2',
             'Wien',
@@ -53,7 +53,7 @@ class XmlFileBuilderTest extends \PHPUnit\Framework\TestCase
             50.53,
             'PK36SCBL0000001123456702',
             'ALFHPKKAXXX',
-            \DateTimeImmutable::createFromFormat('Y-m-d', '2021-07-22'),
+            new \DateTimeImmutable('2021-07-22'),
             'Amir Khan',
             'Nishtar Rd 13',
             'Karachi',
@@ -74,7 +74,7 @@ class XmlFileBuilderTest extends \PHPUnit\Framework\TestCase
 
         $xmlFileBuilder = new XmlFileBuilder();
 
-        $this->assertXmlStringEqualsXmlFile(
+        self::assertXmlStringEqualsXmlFile(
             __DIR__ . '/../data/example-request.xml',
             $xmlFileBuilder->createFromPaymentOrderList($paymentOrderList, '1234562')
         );
