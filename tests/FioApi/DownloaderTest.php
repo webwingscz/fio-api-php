@@ -75,6 +75,7 @@ class DownloaderTest extends \PHPUnit\Framework\TestCase
 
     public function testDownloaderSetsLastId(): void
     {
+        /** @var array<int, array{request: \Psr\Http\Message\RequestInterface}> $container */
         $container = [];
         $history = Middleware::history($container);
 
@@ -86,9 +87,10 @@ class DownloaderTest extends \PHPUnit\Framework\TestCase
 
         $downloader->setLastId('123456');
 
+        Assert::assertIsArray($container);
         Assert::assertCount(1, $container);
 
-        /** @var \GuzzleHttp\Psr7\Request $request */
+        /** @var \Psr\Http\Message\RequestInterface $request */
         $request = $container[0]['request'];
 
         Assert::assertSame('https://fioapi.fio.cz/v1/rest/set-last-id/validToken/123456/', (string) $request->getUri());
