@@ -67,7 +67,7 @@ class UploaderTest extends \PHPUnit\Framework\TestCase
         $uploader->addPaymentOrder($this->createStub(PaymentOrderCzech::class));
         $response = $uploader->uploadPaymentOrders();
 
-        self::assertSame(UploadResponse::class, $response::class);
+        self::assertSame(UploadResponse::class, get_class($response));
 
         return $uploader;
     }
