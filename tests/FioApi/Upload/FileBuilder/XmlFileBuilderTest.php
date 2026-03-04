@@ -79,4 +79,28 @@ class XmlFileBuilderTest extends \PHPUnit\Framework\TestCase
             $xmlFileBuilder->createFromPaymentOrderList($paymentOrderList, '1234562')
         );
     }
+
+    public function testXmlFileBuilderEscapesSpecialCharactersOnlyOnce(): void
+    {
+        $paymentOrderList = new PaymentOrderList();
+        $paymentOrderList->addPaymentOrder(new PaymentOrderCzech(
+            'CZK',
+            100.0,
+            '2212-2000000699',
+            '0300',
+            new \DateTimeImmutable('2021-07-22'),
+            null,
+            null,
+            null,
+            'A & B <C>',
+            'note "quoted" & raw'
+        ));
+
+        $xml = (new XmlFileBuilder())->createFromPaymentOrderList($paymentOrderList, '1234562');
+
+        self::assertStringContainsString('<messageForRecipient>A &amp; B &lt;C&gt;</messageForRecipient>', $xml);
+        self::assertStringContainsString('<comment>note "quoted" &amp; raw</comment>', $xml);
+        self::assertStringNotContainsString('&amp;amp;', $xml);
+        self::assertStringNotContainsString('&amp;lt;', $xml);
+    }
 }

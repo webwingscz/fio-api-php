@@ -110,6 +110,26 @@ class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
         );
     }
 
+    public function testPaymentOrderEuroAcceptsEightCharacterBic(): void
+    {
+        $paymentOrder = new PaymentOrderEuro(
+            'EUR',
+            50.53,
+            'AT611904300234573201',
+            new \DateTimeImmutable('2021-07-22'),
+            'Hans Gruber',
+            'Gugitzgasse 2',
+            'Wien',
+            'AT',
+            '0558',
+            '1234567890',
+            '0987654321',
+            'ABAGATWW'
+        );
+
+        self::assertSame('ABAGATWW', $paymentOrder->getBic());
+    }
+
     public function testInvalidAccountToResultsInUnexpectedPaymentOrderValueException(): void
     {
         $this->expectException(UnexpectedPaymentOrderValueException::class);
@@ -153,7 +173,8 @@ class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
     {
         return [
             'not only alnum characters' => [ 'A-AGATWWXXX' ],
-            'wrong length' => [ 'XABAGATWWXXX' ],
+            'too short' => [ 'ABAGATW' ],
+            'too long' => [ 'XABAGATWWXXX' ],
         ];
     }
 

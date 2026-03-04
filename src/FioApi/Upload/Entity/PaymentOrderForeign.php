@@ -18,7 +18,8 @@ abstract class PaymentOrderForeign extends PaymentOrder
 
     protected const COMMENT_MAX_LENGTH = 140;
     protected const ACCOUNT_MAX_LENGTH = 34;
-    protected const BIC_LENGTH = 11;
+    protected const BIC_MIN_LENGTH = 8;
+    protected const BIC_MAX_LENGTH = 11;
     protected const BENEF_NAME_MAX_LENGTH = 35;
     protected const BENEF_STREET_MAX_LENGTH = 35;
     protected const BENEF_CITY_MAX_LENGTH = 35;
@@ -167,9 +168,15 @@ abstract class PaymentOrderForeign extends PaymentOrder
                 sprintf('BIC "%s" has to contain alphanumeric characters only.', $bic)
             );
         }
-        if (strlen($bic) !== self::BIC_LENGTH) {
+        $length = strlen($bic);
+        if ($length < self::BIC_MIN_LENGTH || $length > self::BIC_MAX_LENGTH) {
             throw new UnexpectedPaymentOrderValueException(
-                sprintf('BIC "%s" has to contain exactly %s characters.', $bic, self::BIC_LENGTH)
+                sprintf(
+                    'BIC "%s" has to contain %s to %s characters.',
+                    $bic,
+                    self::BIC_MIN_LENGTH,
+                    self::BIC_MAX_LENGTH
+                )
             );
         }
         return $bic;
