@@ -38,7 +38,8 @@
     "squizlabs/php_codesniffer": "^3.10",
     "phpstan/phpstan": "^2.1",
     "phpstan/phpstan-phpunit": "^2.0",
-    "phpstan/phpstan-strict-rules": "^2.0"
+    "phpstan/phpstan-strict-rules": "^2.0",
+    "roave/security-advisories": "dev-latest"
   },
   "autoload": {
     "psr-4": {
@@ -52,10 +53,12 @@
   },
   "scripts": {
     "ci": [
+      "@security",
       "@phpstan",
       "@phpcs",
       "@test"
     ],
+    "security": "composer audit --locked --no-dev",
     "test": "phpunit",
     "phpcs": "phpcs --standard=PSR12 src && phpcs --standard=PSR12 tests",
     "phpstan": "phpstan analyse -c phpstan.neon"

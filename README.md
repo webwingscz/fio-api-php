@@ -79,9 +79,18 @@ Submitting bugs and feature requests
 ------------------------------------
 Bugs and feature request are tracked on [GitHub](https://github.com/webwingscz/fio-api-php/issues)
 
+Security
+--------
+Please report vulnerabilities according to [SECURITY.md](SECURITY.md).
+
+Contributing
+------------
+Contribution guidelines are available in [CONTRIBUTING.md](CONTRIBUTING.md).
+
 Author
 ------
 Martin Hujer - <https://www.martinhujer.cz>
+Jiří Dorazil - <https://www.webwings.cz>
 
 Changelog
 ----------
@@ -93,6 +102,10 @@ Changelog
 - improve downloader error handling for connection and invalid JSON responses
 - remove invalid bundled CA certificate fallback and use explicit certificate resolution
 - modernize coding standards from PSR-2 to PSR-12 and update PHP_CodeSniffer
+- enforce release creation only after successful CI build
+- make CI dependency installation deterministic via `composer install` (lockfile-based)
+- add security checks to CI (`composer audit`) and add `roave/security-advisories` to dev dependencies
+- add professional repository standards: `SECURITY.md`, `CONTRIBUTING.md`, CODEOWNERS, issue and PR templates
 
 ## 5.0.0 (2024-06-07)
 - [#31](https://github.com/mhujer/fio-api-php/pull/31) add `composer/ca-bundle` as a required dependency instead of bundled root cert (thx @feldsam!)

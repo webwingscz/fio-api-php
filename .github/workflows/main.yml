@@ -2,14 +2,13 @@ name: CI build
 on: [ push, pull_request ]
 jobs:
     build:
-        name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }} ${{ matrix.extra-label }} ${{ matrix.composer-dependencies }}
+        name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }} ${{ matrix.extra-label }}
         runs-on: ${{ matrix.operating-system }}
         strategy:
             fail-fast: false
             matrix:
                 operating-system: [ ubuntu-latest ]
                 php-versions: [ '7.4', '8.0', '8.1', '8.2', '8.3', '8.4' ]
-                composer-dependencies: [ '', '--prefer-lowest' ]
                 extra-label: [ '' ]
                 include:
 
@@ -72,7 +71,7 @@ jobs:
                     restore-keys: ${{ runner.os }}-composer-
 
             -   name: Install Composer dependencies
-                run: composer update --no-progress --prefer-dist --optimize-autoloader ${{ matrix.composer-dependencies }}
+                run: composer install --no-progress --prefer-dist --optimize-autoloader
 
             -   name: Run CI Build
                 run: composer ci
