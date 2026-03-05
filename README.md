@@ -1,6 +1,6 @@
 # Fio API PHP implemention
 
-[![Latest Stable Version](https://poser.pugx.org/mhujer/fio-api-php/version.png)](https://packagist.org/packages/mhujer/fio-api-php) [![Total Downloads](https://poser.pugx.org/mhujer/fio-api-php/downloads.png)](https://packagist.org/packages/mhujer/fio-api-php) [![License](https://poser.pugx.org/mhujer/fio-api-php/license.svg)](https://packagist.org/packages/mhujer/fio-api-php) [![Coverage Status](https://coveralls.io/repos/mhujer/fio-api-php/badge.svg?branch=master)](https://coveralls.io/r/mhujer/fio-api-php?branch=master)
+[![Latest Stable Version](https://poser.pugx.org/webwingscz/fio-api-php/version.png)](https://packagist.org/packages/webwingscz/fio-api-php) [![Total Downloads](https://poser.pugx.org/webwingscz/fio-api-php/downloads.png)](https://packagist.org/packages/webwingscz/fio-api-php) [![License](https://poser.pugx.org/webwingscz/fio-api-php/license.svg)](https://packagist.org/packages/webwingscz/fio-api-php) [![Coverage Status](https://coveralls.io/repos/webwingscz/fio-api-php/badge.svg?branch=master)](https://coveralls.io/r/webwingscz/fio-api-php?branch=master)
 
 Fio bank REST API implementation in PHP. It allows you to download and iterate through account balance changes. You can also upload payment orders.
 
@@ -8,7 +8,7 @@ Fio bank REST API implementation in PHP. It allows you to download and iterate t
 
 Usage
 ----
-1. Install the latest version with `composer require mhujer/fio-api-php`
+1. Install the latest version with `composer require webwingscz/fio-api-php`
 2. Create a *token* in the ebanking (Nastavení / API)
 3. Use it according to the example bellow and check the docblocks
 
@@ -55,7 +55,7 @@ Fio API PHP works with PHP 7.4 or higher.
 
 Submitting bugs and feature requests
 ------------------------------------
-Bugs and feature request are tracked on [GitHub](https://github.com/mhujer/fio-api-php/issues)
+Bugs and feature request are tracked on [GitHub](https://github.com/webwingscz/fio-api-php/issues)
 
 Author
 ------

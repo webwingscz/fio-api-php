@@ -3,13 +3,14 @@ declare(strict_types = 1);
 
 namespace FioApi;
 
+use FioApi\Exceptions\MissingCertificateException;
 use GuzzleHttp\ClientInterface;
 
 abstract class Transferrer
 {
     protected UrlBuilder $urlBuilder;
     protected ?ClientInterface $client;
-    protected string $certificatePath;
+    protected ?string $certificatePath = null;
 
     protected function __construct(
         string $token,
@@ -26,18 +27,28 @@ abstract class Transferrer
 
     public function getCertificatePath(): string
     {
-        if (isset($this->certificatePath)) {
-            return $this->certificatePath;
+        if ($this->certificatePath !== null) {
+            return $this->validateCertificatePath($this->certificatePath);
         }
 
         if (class_exists('\Composer\CaBundle\CaBundle')) {
-            return \Composer\CaBundle\CaBundle::getSystemCaRootBundlePath();
+            return $this->validateCertificatePath(\Composer\CaBundle\CaBundle::getSystemCaRootBundlePath());
         } elseif (class_exists('\Kdyby\CurlCaBundle\CertificateHelper')) {
-            return \Kdyby\CurlCaBundle\CertificateHelper::getCaInfoFile();
+            return $this->validateCertificatePath(\Kdyby\CurlCaBundle\CertificateHelper::getCaInfoFile());
         }
 
-        //Key downloaded from https://www.geotrust.com/resources/root-certificates/
-        return __DIR__ . '/keys/Geotrust_PCA_G3_Root.pem';
+        throw new MissingCertificateException(
+            'No CA certificate bundle available. Install composer/ca-bundle or set certificate path manually.'
+        );
+    }
+
+    private function validateCertificatePath(string $certificatePath): string
+    {
+        if ($certificatePath === '' || is_file($certificatePath) === false) {
+            throw new MissingCertificateException(sprintf('CA certificate path "%s" does not exist.', $certificatePath));
+        }
+
+        return $certificatePath;
     }
 
     public function getClient(): ClientInterface

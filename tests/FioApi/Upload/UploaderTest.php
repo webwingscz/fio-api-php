@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace FioApi\Upload;
 
 use FioApi\Exceptions\MissingPaymentOrderException;
+use FioApi\Exceptions\MissingCertificateException;
 use FioApi\Exceptions\UnexpectedPaymentOrderValueException;
 use FioApi\Upload\Entity\PaymentOrderCzech;
 use FioApi\Upload\Entity\UploadResponse;
@@ -49,6 +50,25 @@ class UploaderTest extends \PHPUnit\Framework\TestCase
         $uploader = new Uploader('testToken', '123456489');
 
         $this->expectException(MissingPaymentOrderException::class);
+
+        $uploader->uploadPaymentOrders();
+    }
+
+    public function testMissingCertificateResultsInException(): void
+    {
+        $handler = HandlerStack::create(new MockHandler([
+            new Response(200, [], $this->readFixture('example-response-success.xml')),
+        ]));
+        $uploader = new Uploader(
+            'testToken',
+            '123456489',
+            new Client(['handler' => $handler]),
+            $this->createStub(FileBuilder::class)
+        );
+        $uploader->setCertificatePath('/this/path/does/not/exist.pem');
+        $uploader->addPaymentOrder($this->createStub(PaymentOrderCzech::class));
+
+        $this->expectException(MissingCertificateException::class);
 
         $uploader->uploadPaymentOrders();
     }

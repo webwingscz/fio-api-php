@@ -3,11 +3,15 @@ declare(strict_types = 1);
 
 namespace FioApi\Download;
 
+use FioApi\Exceptions\ConnectionException;
+use FioApi\Exceptions\InvalidResponseException;
 use FioApi\Download\Entity\TransactionList;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Assert;
 
@@ -95,5 +99,41 @@ class DownloaderTest extends \PHPUnit\Framework\TestCase
         $request = $container[0]['request'];
 
         Assert::assertSame('https://fioapi.fio.cz/v1/rest/set-last-id/validToken/123456/', (string) $request->getUri());
+    }
+
+    public function testConnectionIssueResultsInConnectionException(): void
+    {
+        $handler = HandlerStack::create(new MockHandler([
+            new ConnectException('Connection timed out', new Request('GET', '/')),
+        ]));
+        $downloader = new Downloader('validToken', new Client(['handler' => $handler]));
+
+        $this->expectException(ConnectionException::class);
+
+        $downloader->downloadSince(new \DateTimeImmutable('-1 week'));
+    }
+
+    public function testInvalidJsonResponseResultsInInvalidResponseException(): void
+    {
+        $handler = HandlerStack::create(new MockHandler([
+            new Response(200, [], '{invalid-json'),
+        ]));
+        $downloader = new Downloader('validToken', new Client(['handler' => $handler]));
+
+        $this->expectException(InvalidResponseException::class);
+
+        $downloader->downloadSince(new \DateTimeImmutable('-1 week'));
+    }
+
+    public function testMissingAccountStatementResultsInInvalidResponseException(): void
+    {
+        $handler = HandlerStack::create(new MockHandler([
+            new Response(200, [], '{"foo":"bar"}'),
+        ]));
+        $downloader = new Downloader('validToken', new Client(['handler' => $handler]));
+
+        $this->expectException(InvalidResponseException::class);
+
+        $downloader->downloadSince(new \DateTimeImmutable('-1 week'));
     }
 }
