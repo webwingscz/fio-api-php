@@ -3,3 +3,7 @@ composer.phar
 phpunit.xml
 composer.lock
 build/
+/.phpunit.result.cache
+/docker/
+/.idea/
+/Makefile

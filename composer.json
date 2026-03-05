@@ -1,5 +1,5 @@
 {
-  "name": "mhujer/fio-api-php",
+  "name": "webwingscz/fio-api-php",
   "type": "library",
   "description": "Fio API PHP implemention",
   "keywords": [
@@ -14,6 +14,12 @@
       "name": "Martin Hujer",
       "email": "mhujer@gmail.com",
       "homepage": "https://www.martinhujer.cz/",
+      "role": "Developer"
+    },
+    {
+      "name": "Jiří Dorazil",
+      "email": "dorazil@webwings.cz",
+      "homepage": "https://www.webwings.cz/",
       "role": "Developer"
     }
   ],
