@@ -33,6 +33,14 @@ foreach ($transactionList->getTransactions() as $transaction) {
 - `downloadLast(): TransactionList`
 - `setLastId(string $id)` - sets the last downloaded ID through the API
 
+#### Optional timeout and retry configuration
+- `setBaseUrl(string $baseUrl)` - override API base URL (sandbox/proxy/testing)
+- `setRequestTimeout(float $seconds)` - total request timeout (`timeout` in Guzzle)
+- `setConnectTimeout(float $seconds)` - connection timeout (`connect_timeout` in Guzzle)
+- `configureRetry(int $retryCount, int $initialDelayMs = 30000, float $backoffMultiplier = 2.0, ?int $maxDelayMs = null)`
+  - retries only network/connect errors (`ConnectException`)
+  - default initial delay is 30 seconds to respect Fio token rate limit
+
 ### Upload
 
 ```php
@@ -53,6 +61,20 @@ Requirements
 ------------
 Fio API PHP works with PHP 7.4 or higher.
 
+Stability and compatibility (version 6)
+---------------------------------------
+- Current major line: `6.x`
+- Supported PHP versions: `^7.4 || ^8.0`
+- Supported Guzzle versions: `~6.1 | ~7.0`
+- Versioning policy: SemVer (`MAJOR.MINOR.PATCH`)
+- Backward compatibility:
+  - No BC breaks in `6.x` patch/minor releases.
+  - BC breaks are allowed only in next major version (`7.0`).
+- Release policy:
+  - `master` branch contains upcoming changes.
+  - Tagged releases (`6.x.y`) are considered stable and production-ready.
+  - Security and critical bug fixes should be released as patch versions.
+
 Submitting bugs and feature requests
 ------------------------------------
 Bugs and feature request are tracked on [GitHub](https://github.com/webwingscz/fio-api-php/issues)
@@ -63,6 +85,14 @@ Martin Hujer - <https://www.martinhujer.cz>
 
 Changelog
 ----------
+
+## 6.0.0 (2026-03-05)
+- add configurable base URL (`setBaseUrl`) for sandbox/proxy/testing scenarios
+- add configurable request timeout and connect timeout
+- add a configurable retry strategy with exponential backoff for connection errors
+- improve downloader error handling for connection and invalid JSON responses
+- remove invalid bundled CA certificate fallback and use explicit certificate resolution
+- modernize coding standards from PSR-2 to PSR-12 and update PHP_CodeSniffer
 
 ## 5.0.0 (2024-06-07)
 - [#31](https://github.com/mhujer/fio-api-php/pull/31) add `composer/ca-bundle` as a required dependency instead of bundled root cert (thx @feldsam!)

@@ -41,13 +41,12 @@ class Downloader extends Transferrer
 
     public function setLastId(string $id): void
     {
-        $client = $this->getClient();
         $url = $this->urlBuilder->buildSetLastIdUrl($id);
 
         try {
-            $client->request('get', $url);
+            $this->requestWithRetry('get', $url);
         } catch (ConnectException $e) {
-            throw new ConnectionException('Could not connect to the Fio API server.', (int) $e->getCode(), $e);
+            throw new ConnectionException('Could not connect to the Fio API server.', $e->getCode(), $e);
         } catch (BadResponseException $e) {
             $this->handleBadResponseException($e);
         }
@@ -55,14 +54,13 @@ class Downloader extends Transferrer
 
     private function downloadTransactionsList(string $url): TransactionList
     {
-        $client = $this->getClient();
         try {
-            $response = $client->request('get', $url);
+            $response = $this->requestWithRetry('get', $url);
             $jsonData = json_decode($response->getBody()->getContents(), null, 512, JSON_THROW_ON_ERROR);
         } catch (ConnectException $e) {
-            throw new ConnectionException('Could not connect to the Fio API server.', (int) $e->getCode(), $e);
+            throw new ConnectionException('Could not connect to the Fio API server.', $e->getCode(), $e);
         } catch (\JsonException $e) {
-            throw new InvalidResponseException('The Fio API response is not valid JSON.', (int) $e->getCode(), $e);
+            throw new InvalidResponseException('The Fio API response is not valid JSON.', $e->getCode(), $e);
         } catch (BadResponseException $e) {
             $this->handleBadResponseException($e);
         }

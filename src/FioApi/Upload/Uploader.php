@@ -68,9 +68,8 @@ class Uploader extends Transferrer
     protected function sendRequest(): ResponseInterface
     {
         $url = $this->urlBuilder->buildUploadUrl();
-        $client = $this->getClient();
 
-        return $client->request('post', $url, [
+        return $this->requestWithRetry('post', $url, [
             'verify' => $this->getCertificatePath(),
             'multipart' => [
                 [

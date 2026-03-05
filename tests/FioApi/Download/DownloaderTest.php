@@ -5,7 +5,6 @@ namespace FioApi\Download;
 
 use FioApi\Exceptions\ConnectionException;
 use FioApi\Exceptions\InvalidResponseException;
-use FioApi\Download\Entity\TransactionList;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Handler\MockHandler;
@@ -111,6 +110,45 @@ class DownloaderTest extends \PHPUnit\Framework\TestCase
         $this->expectException(ConnectionException::class);
 
         $downloader->downloadSince(new \DateTimeImmutable('-1 week'));
+    }
+
+    public function testDownloaderRetriesConnectionExceptionWhenConfigured(): void
+    {
+        /** @var array<int, array{request: \Psr\Http\Message\RequestInterface}> $container */
+        $container = [];
+        $history = Middleware::history($container);
+        $handler = HandlerStack::create(new MockHandler([
+            new ConnectException('Connection timed out', new Request('GET', '/')),
+            new Response(200, [], (string) file_get_contents(__DIR__ . '/data/example-response.json')),
+        ]));
+        $handler->push($history);
+        $downloader = new Downloader('validToken', new Client(['handler' => $handler]));
+        $downloader->configureRetry(1, 0);
+
+        $transactionList = $downloader->downloadSince(new \DateTimeImmutable('-1 week'));
+
+        Assert::assertCount(3, $transactionList->getTransactions());
+        Assert::assertCount(2, (array) $container);
+    }
+
+    public function testConfiguredTimeoutsArePassedToRequestOptions(): void
+    {
+        /** @var array<int, array{options: array<string, mixed>}> $container */
+        $container = [];
+        $history = Middleware::history($container);
+        $handler = HandlerStack::create(new MockHandler([
+            new Response(200, [], (string) file_get_contents(__DIR__ . '/data/example-response.json')),
+        ]));
+        $handler->push($history);
+        $downloader = new Downloader('validToken', new Client(['handler' => $handler]));
+        $downloader->setRequestTimeout(10.5);
+        $downloader->setConnectTimeout(2.5);
+
+        $downloader->downloadSince(new \DateTimeImmutable('-1 week'));
+
+        Assert::assertCount(1, (array) $container);
+        Assert::assertSame(10.5, $container[0]['options']['timeout']);
+        Assert::assertSame(2.5, $container[0]['options']['connect_timeout']);
     }
 
     public function testInvalidJsonResponseResultsInInvalidResponseException(): void

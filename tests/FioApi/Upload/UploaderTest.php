@@ -10,8 +10,11 @@ use FioApi\Upload\Entity\PaymentOrderCzech;
 use FioApi\Upload\Entity\UploadResponse;
 use FioApi\Upload\FileBuilder\FileBuilder;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 
 class UploaderTest extends \PHPUnit\Framework\TestCase
@@ -90,6 +93,63 @@ class UploaderTest extends \PHPUnit\Framework\TestCase
         self::assertSame(UploadResponse::class, get_class($response));
 
         return $uploader;
+    }
+
+    public function testUploaderUploadCanFailWithConnectionException(): void
+    {
+        $handler = HandlerStack::create(new MockHandler([
+            new ConnectException('Connection timed out', new Request('POST', '/')),
+        ]));
+        $uploader = new Uploader(
+            'testToken',
+            '123456489',
+            new Client(['handler' => $handler]),
+            $this->createStub(FileBuilder::class)
+        );
+        $uploader->setCertificatePath(__FILE__);
+        $uploader->addPaymentOrder($this->createStub(PaymentOrderCzech::class));
+
+        $this->expectException(ConnectException::class);
+
+        $uploader->uploadPaymentOrders();
+    }
+
+    public function testUploaderUploadCanFailWithServerException(): void
+    {
+        $handler = HandlerStack::create(new MockHandler([
+            new Response(500),
+        ]));
+        $uploader = new Uploader(
+            'testToken',
+            '123456489',
+            new Client(['handler' => $handler]),
+            $this->createStub(FileBuilder::class)
+        );
+        $uploader->setCertificatePath(__FILE__);
+        $uploader->addPaymentOrder($this->createStub(PaymentOrderCzech::class));
+
+        $this->expectException(ServerException::class);
+
+        $uploader->uploadPaymentOrders();
+    }
+
+    public function testUploaderUploadFailsForInvalidXmlResponse(): void
+    {
+        $handler = HandlerStack::create(new MockHandler([
+            new Response(200, [], '<invalid'),
+        ]));
+        $uploader = new Uploader(
+            'testToken',
+            '123456489',
+            new Client(['handler' => $handler]),
+            $this->createStub(FileBuilder::class)
+        );
+        $uploader->setCertificatePath(__FILE__);
+        $uploader->addPaymentOrder($this->createStub(PaymentOrderCzech::class));
+
+        $this->expectException(\Exception::class);
+
+        $uploader->uploadPaymentOrders();
     }
 
     /**

@@ -38,4 +38,67 @@ class UrlBuilderTest extends \PHPUnit\Framework\TestCase
             )
         );
     }
+
+    public function testBuildLastUrlReturnsValidUrl(): void
+    {
+        $urlBuilder = new UrlBuilder('token1');
+        Assert::assertSame(
+            'https://fioapi.fio.cz/v1/rest/last/token1/transactions.json',
+            $urlBuilder->buildLastUrl()
+        );
+    }
+
+    public function testBuildSetLastIdUrlReturnsValidUrl(): void
+    {
+        $urlBuilder = new UrlBuilder('token1');
+        Assert::assertSame(
+            'https://fioapi.fio.cz/v1/rest/set-last-id/token1/123/',
+            $urlBuilder->buildSetLastIdUrl('123')
+        );
+    }
+
+    public function testBuildUploadUrlReturnsValidUrl(): void
+    {
+        $urlBuilder = new UrlBuilder('token1');
+        Assert::assertSame(
+            'https://fioapi.fio.cz/v1/rest/import/',
+            $urlBuilder->buildUploadUrl()
+        );
+    }
+
+    public function testBaseUrlCanBeSetThroughConstructor(): void
+    {
+        $urlBuilder = new UrlBuilder('token1', 'https://proxy.internal/fio');
+        Assert::assertSame(
+            'https://proxy.internal/fio/',
+            $urlBuilder->getBaseUrl()
+        );
+        Assert::assertSame(
+            'https://proxy.internal/fio/last/token1/transactions.json',
+            $urlBuilder->buildLastUrl()
+        );
+    }
+
+    public function testBaseUrlCanBeChangedThroughSetter(): void
+    {
+        $urlBuilder = new UrlBuilder('token1');
+        $urlBuilder->setBaseUrl('https://sandbox.fio.local/v1/rest');
+
+        Assert::assertSame(
+            'https://sandbox.fio.local/v1/rest/',
+            $urlBuilder->getBaseUrl()
+        );
+        Assert::assertSame(
+            'https://sandbox.fio.local/v1/rest/import/',
+            $urlBuilder->buildUploadUrl()
+        );
+    }
+
+    public function testEmptyBaseUrlThrowsInvalidArgumentException(): void
+    {
+        $urlBuilder = new UrlBuilder('token1');
+        $this->expectException(\InvalidArgumentException::class);
+
+        $urlBuilder->setBaseUrl('  ');
+    }
 }
