@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace FioApi;
 
@@ -104,7 +105,9 @@ abstract class Transferrer
     private function validateCertificatePath(string $certificatePath): string
     {
         if ($certificatePath === '' || is_file($certificatePath) === false) {
-            throw new MissingCertificateException(sprintf('CA certificate path "%s" does not exist.', $certificatePath));
+            throw new MissingCertificateException(
+                sprintf('CA certificate path "%s" does not exist.', $certificatePath)
+            );
         }
 
         return $certificatePath;

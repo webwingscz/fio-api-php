@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace FioApi;
 
@@ -7,7 +8,7 @@ use FioApi\Exceptions\MissingTokenException;
 
 class UrlBuilder
 {
-    const BASE_URL = 'https://fioapi.fio.cz/v1/rest/';
+    public const BASE_URL = 'https://fioapi.fio.cz/v1/rest/';
 
     protected string $token;
     protected string $baseUrl;
