@@ -70,6 +70,8 @@ class XmlFileBuilder implements FileBuilder
         $xml->openMemory();
         $xml->startDocument('1.0', 'UTF-8');
         $xml->startElement('Import');
+        $xml->writeAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+        $xml->writeAttribute('xsi:noNamespaceSchemaLocation', 'http://www.fio.cz/schema/importIB.xsd');
         $xml->startElement('Orders');
     }
 
@@ -81,14 +83,22 @@ class XmlFileBuilder implements FileBuilder
         $xml = $this->getXml();
         $xml->startElement($paymentOrderType);
 
-        $xml->writeElement('accountFrom', $accountFrom);
+        $this->writeTextElement('accountFrom', $accountFrom);
 
         foreach ($paymentOrder->toArray() as $node => $value) {
             if ($value !== null) {
-                $xml->writeElement($node, (string) $value);
+                $this->writeTextElement($node, (string) $value);
             }
         }
 
+        $xml->endElement();
+    }
+
+    protected function writeTextElement(string $node, string $value): void
+    {
+        $xml = $this->getXml();
+        $xml->startElement($node);
+        $xml->writeRaw(htmlspecialchars($value, ENT_XML1 | ENT_NOQUOTES, 'UTF-8'));
         $xml->endElement();
     }
 
