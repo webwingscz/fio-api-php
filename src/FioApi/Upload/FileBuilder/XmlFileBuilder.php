@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace FioApi\Upload\FileBuilder;
 
@@ -65,7 +66,7 @@ class XmlFileBuilder implements FileBuilder
 
     protected function createEmptyXml(): void
     {
-        $this->xml = new XMLWriter;
+        $this->xml = new XMLWriter();
         $xml = $this->getXml();
         $xml->openMemory();
         $xml->startDocument('1.0', 'UTF-8');
