@@ -82,8 +82,7 @@ abstract class PaymentOrder
         return $this->comment ?? null;
     }
 
-    /** @return static */
-    protected function setCurrency(string $currency)
+    protected function setCurrency(string $currency): static
     {
         if (preg_match('/^[a-z]{3}$/i', $currency) !== 1) {
             throw new UnexpectedPaymentOrderValueException('Currency code has to match ISO 4217.');
@@ -92,8 +91,7 @@ abstract class PaymentOrder
         return $this;
     }
 
-    /** @return static */
-    protected function setAmount(float $amount)
+    protected function setAmount(float $amount): static
     {
         if ($amount <= 0) {
             throw new UnexpectedPaymentOrderValueException('Amount has to be positive number.');
@@ -102,29 +100,25 @@ abstract class PaymentOrder
         return $this;
     }
 
-    /** @return static */
-    protected function setAccountTo(string $accountTo)
+    protected function setAccountTo(string $accountTo): static
     {
         $this->accountTo = static::validateAccountTo($accountTo);
         return $this;
     }
 
-    /** @return static */
-    protected function setDate(\DateTimeInterface $date)
+    protected function setDate(\DateTimeInterface $date): static
     {
         $this->date = $date->format('Y-m-d');
         return $this;
     }
 
-    /** @return static */
-    protected function setComment(string $comment)
+    protected function setComment(string $comment): static
     {
         $this->comment = static::validateStringMaxLength($comment, static::COMMENT_MAX_LENGTH);
         return $this;
     }
 
-    /** @return static */
-    protected function setPaymentReason(int $paymentReason)
+    protected function setPaymentReason(int $paymentReason): static
     {
         if ($paymentReason < self::PAYMENT_REASON_MIN || $paymentReason > self::PAYMENT_REASON_MAX) {
             throw new UnexpectedPaymentOrderValueException(

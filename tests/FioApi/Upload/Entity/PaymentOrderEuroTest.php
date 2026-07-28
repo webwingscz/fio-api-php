@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace FioApi\Upload\Entity;
 
 use FioApi\Exceptions\UnexpectedPaymentOrderValueException;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @dataProvider paymentOrderProvider
-     *
      * @param array<string, float|int|string|null> $expected
      */
+    #[DataProvider('paymentOrderProvider')]
     public function testPaymentOrderEuroCorrectlyConvertsToArray(array $expected, PaymentOrderEuro $paymentOrder): void
     {
         self::assertSame($expected, $paymentOrder->toArray());
@@ -21,7 +21,7 @@ class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
     /**
      * @return array<string, array{0: array<string, float|int|string|null>, 1: PaymentOrderEuro}>
      */
-    public function paymentOrderProvider(): array
+    public static function paymentOrderProvider(): array
     {
         return [
             'with all properties' => [
@@ -144,9 +144,7 @@ class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @dataProvider bicProvider
-     */
+    #[DataProvider('bicProvider')]
     public function testInvalidBicResultsInUnexpectedPaymentOrderValueException(string $bic): void
     {
         $this->expectException(UnexpectedPaymentOrderValueException::class);
@@ -170,7 +168,7 @@ class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
     /**
      * @return array<string, array{0: string}>
      */
-    public function bicProvider(): array
+    public static function bicProvider(): array
     {
         return [
             'not only alnum characters' => [ 'A-AGATWWXXX' ],
@@ -179,9 +177,7 @@ class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider benefCountryProvider
-     */
+    #[DataProvider('benefCountryProvider')]
     public function testInvalidBenefCountryResultsInUnexpectedPaymentOrderValueException(string $benefCountry): void
     {
         $this->expectException(UnexpectedPaymentOrderValueException::class);
@@ -201,7 +197,7 @@ class PaymentOrderEuroTest extends \PHPUnit\Framework\TestCase
     /**
      * @return array<string, array{0: string}>
      */
-    public function benefCountryProvider(): array
+    public static function benefCountryProvider(): array
     {
         return [
             'not only alnum characters' => [ 'A-' ],

@@ -6,33 +6,13 @@ namespace FioApi\Download\Entity;
 
 class Account
 {
-    /** @var string */
-    protected $accountNumber;
-
-    /** @var string */
-    protected $bankCode;
-
-    /** @var string */
-    protected $currency;
-
-    /** @var string */
-    protected $iban;
-
-    /** @var string */
-    protected $bic;
-
     public function __construct(
-        string $accountNumber,
-        string $bankCode,
-        string $currency,
-        string $iban,
-        string $bic
+        protected readonly string $accountNumber,
+        protected readonly string $bankCode,
+        protected readonly string $currency,
+        protected readonly string $iban,
+        protected readonly string $bic,
     ) {
-        $this->accountNumber = $accountNumber;
-        $this->bankCode = $bankCode;
-        $this->currency = $currency;
-        $this->iban = $iban;
-        $this->bic = $bic;
     }
 
     public function getAccountNumber(): string

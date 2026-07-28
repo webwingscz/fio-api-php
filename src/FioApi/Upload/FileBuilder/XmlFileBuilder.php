@@ -52,7 +52,7 @@ class XmlFileBuilder implements FileBuilder
     {
         $segmentedArray = [];
         foreach ($paymentOrderList->getPaymentOrders() as $paymentOrder) {
-            $paymentOrderClassName = get_class($paymentOrder);
+            $paymentOrderClassName = $paymentOrder::class;
             $segmentName = self::PAYMENT_ORDER_TYPES_SORTED[$paymentOrderClassName] ?? null;
             if ($segmentName === null) {
                 throw new UnexpectedPaymentOrderClassException(

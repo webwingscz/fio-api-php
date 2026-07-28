@@ -12,13 +12,13 @@ use FioApi\Exceptions\TooGreedyException;
 use FioApi\Transferrer;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\BadResponseException;
-use GuzzleHttp\Exception\ConnectException;
+use Psr\Http\Client\NetworkExceptionInterface;
 
 class Downloader extends Transferrer
 {
     public function __construct(
-        string $token,
-        ?ClientInterface $client = null
+        #[\SensitiveParameter] string $token,
+        ?ClientInterface $client = null,
     ) {
         parent::__construct($token, $client);
     }
@@ -45,8 +45,8 @@ class Downloader extends Transferrer
         $url = $this->urlBuilder->buildSetLastIdUrl($id);
 
         try {
-            $this->requestWithRetry('get', $url);
-        } catch (ConnectException $e) {
+            $this->requestWithRetry('GET', $url);
+        } catch (NetworkExceptionInterface $e) {
             throw new ConnectionException('Could not connect to the Fio API server.', $e->getCode(), $e);
         } catch (BadResponseException $e) {
             $this->handleBadResponseException($e);
@@ -56,9 +56,9 @@ class Downloader extends Transferrer
     private function downloadTransactionsList(string $url): TransactionList
     {
         try {
-            $response = $this->requestWithRetry('get', $url);
-            $jsonData = json_decode($response->getBody()->getContents(), null, 512, JSON_THROW_ON_ERROR);
-        } catch (ConnectException $e) {
+            $response = $this->requestWithRetry('GET', $url);
+            $jsonData = json_decode($response->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR);
+        } catch (NetworkExceptionInterface $e) {
             throw new ConnectionException('Could not connect to the Fio API server.', $e->getCode(), $e);
         } catch (\JsonException $e) {
             throw new InvalidResponseException('The Fio API response is not valid JSON.', $e->getCode(), $e);
@@ -73,7 +73,7 @@ class Downloader extends Transferrer
         return TransactionList::create($jsonData->accountStatement);
     }
 
-    private function handleBadResponseException(BadResponseException $e): void
+    private function handleBadResponseException(BadResponseException $e): never
     {
         if ($e->getCode() === 409) {
             throw new TooGreedyException('You can use one token for API call every 30 seconds', $e->getCode(), $e);

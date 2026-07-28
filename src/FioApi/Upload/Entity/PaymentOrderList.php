@@ -6,20 +6,17 @@ namespace FioApi\Upload\Entity;
 
 class PaymentOrderList
 {
-    /** @var PaymentOrder[] */
+    /** @var list<PaymentOrder> */
     protected array $paymentOrders = [];
 
-    /**
-     * @return static
-     */
-    public function addPaymentOrder(PaymentOrder $paymentOrder)
+    public function addPaymentOrder(PaymentOrder $paymentOrder): static
     {
         $this->paymentOrders[] = $paymentOrder;
         return $this;
     }
 
     /**
-     * @return PaymentOrder[]
+     * @return list<PaymentOrder>
      */
     public function getPaymentOrders(): array
     {
@@ -28,7 +25,7 @@ class PaymentOrderList
 
     public function isEmpty(): bool
     {
-        return count($this->paymentOrders) === 0;
+        return $this->paymentOrders === [];
     }
 
     public function clear(): void

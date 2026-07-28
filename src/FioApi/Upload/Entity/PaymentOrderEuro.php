@@ -129,8 +129,7 @@ class PaymentOrderEuro extends PaymentOrderForeign
         return $this->paymentReason ?? null;
     }
 
-    /** @return static */
-    protected function setPaymentType(int $type)
+    protected function setPaymentType(int $type): static
     {
         $this->paymentType = static::validateValueIsInList($type, static::PAYMENT_TYPES);
         return $this;

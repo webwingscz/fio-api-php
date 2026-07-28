@@ -104,15 +104,13 @@ class PaymentOrderCzech extends PaymentOrder
         return $this->paymentReason ?? null;
     }
 
-    /** @return static */
-    protected function setBankCode(string $bankCode)
+    protected function setBankCode(string $bankCode): static
     {
         $this->bankCode = static::validateBankCode($bankCode);
         return $this;
     }
 
-    /** @return static */
-    protected function setMessageForRecipient(string $messageForRecipient)
+    protected function setMessageForRecipient(string $messageForRecipient): static
     {
         $this->messageForRecipient = static::validateStringMaxLength(
             $messageForRecipient,
@@ -121,8 +119,7 @@ class PaymentOrderCzech extends PaymentOrder
         return $this;
     }
 
-    /** @return static */
-    protected function setPaymentType(int $type)
+    protected function setPaymentType(int $type): static
     {
         $this->paymentType = static::validateValueIsInList($type, static::PAYMENT_TYPES);
         return $this;

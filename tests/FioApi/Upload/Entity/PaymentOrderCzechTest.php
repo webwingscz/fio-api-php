@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace FioApi\Upload\Entity;
 
 use FioApi\Exceptions\UnexpectedPaymentOrderValueException;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class PaymentOrderCzechTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @dataProvider paymentOrderProvider
-     *
      * @param array<string, float|int|string|null> $expected
      */
+    #[DataProvider('paymentOrderProvider')]
     public function testPaymentOrderCzechCorrectlyConvertsToArray(
         array $expected,
         PaymentOrderCzech $paymentOrder
@@ -23,7 +23,7 @@ class PaymentOrderCzechTest extends \PHPUnit\Framework\TestCase
     /**
      * @return array<string, array{0: array<string, float|int|string|null>, 1: PaymentOrderCzech}>
      */
-    public function paymentOrderProvider(): array
+    public static function paymentOrderProvider(): array
     {
         return [
             'with all properties' => [
@@ -108,9 +108,7 @@ class PaymentOrderCzechTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @dataProvider bankCodeProvider
-     */
+    #[DataProvider('bankCodeProvider')]
     public function testInvalidBankCodeResultsInUnexpectedPaymentOrderValueException(string $bankCode): void
     {
         $this->expectException(UnexpectedPaymentOrderValueException::class);
@@ -127,7 +125,7 @@ class PaymentOrderCzechTest extends \PHPUnit\Framework\TestCase
     /**
      * @return array<string, array{0: string}>
      */
-    public function bankCodeProvider(): array
+    public static function bankCodeProvider(): array
     {
         return [
             'not only digits' => [ '030x' ],
@@ -135,9 +133,7 @@ class PaymentOrderCzechTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider variableSymbolProvider
-     */
+    #[DataProvider('variableSymbolProvider')]
     public function testInvalidVariableSymbolResultsInUnexpectedPaymentOrderValueException(string $variableSymbol): void
     {
         $this->expectException(UnexpectedPaymentOrderValueException::class);
@@ -156,7 +152,7 @@ class PaymentOrderCzechTest extends \PHPUnit\Framework\TestCase
     /**
      * @return array<string, array{0: string}>
      */
-    public function variableSymbolProvider(): array
+    public static function variableSymbolProvider(): array
     {
         return [
             'not only digits' => [ '123456789x' ],

@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace FioApi\Upload\Entity;
 
 use FioApi\Exceptions\UnexpectedPaymentOrderValueException;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class PaymentOrderInternationalTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @dataProvider paymentOrderProvider
-     *
      * @param array<string, float|int|string|null> $expected
      */
+    #[DataProvider('paymentOrderProvider')]
     public function testPaymentOrderInternationalCorrectlyConvertsToArray(
         array $expected,
         PaymentOrderInternational $paymentOrder
@@ -23,7 +23,7 @@ class PaymentOrderInternationalTest extends \PHPUnit\Framework\TestCase
     /**
      * @return array<string, array{0: array<string, float|int|string|null>, 1: PaymentOrderInternational}>
      */
-    public function paymentOrderProvider(): array
+    public static function paymentOrderProvider(): array
     {
         return [
             'with all properties' => [

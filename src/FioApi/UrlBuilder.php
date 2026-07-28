@@ -13,7 +13,7 @@ class UrlBuilder
     protected string $token;
     protected string $baseUrl;
 
-    public function __construct(string $token, ?string $baseUrl = null)
+    public function __construct(#[\SensitiveParameter] string $token, ?string $baseUrl = null)
     {
         $this->setToken($token);
         $this->setBaseUrl($baseUrl ?? self::BASE_URL);
@@ -24,7 +24,7 @@ class UrlBuilder
         return $this->token;
     }
 
-    public function setToken(string $token): void
+    public function setToken(#[\SensitiveParameter] string $token): void
     {
         if ($token === '') {
             throw new MissingTokenException(
@@ -45,7 +45,7 @@ class UrlBuilder
         if ($normalizedBaseUrl === '') {
             throw new \InvalidArgumentException('Base URL must not be empty.');
         }
-        if (substr($normalizedBaseUrl, -1) !== '/') {
+        if (str_ends_with($normalizedBaseUrl, '/') === false) {
             $normalizedBaseUrl .= '/';
         }
 

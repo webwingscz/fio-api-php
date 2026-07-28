@@ -4,18 +4,27 @@ declare(strict_types=1);
 
 namespace FioApi\Upload\Entity;
 
+use FioApi\Exceptions\InvalidResponseException;
 use SimpleXMLElement;
 
 class UploadResponse
 {
     protected const SUCCESS = 'ok';
 
-    protected SimpleXMLElement $xml;
+    protected readonly SimpleXMLElement $xml;
 
-    public function __construct(
-        string $xml
-    ) {
-        $this->xml = new SimpleXMLElement($xml);
+    public function __construct(string $xml)
+    {
+        // Keep libxml parse errors internal so a malformed response does not leak PHP warnings.
+        $previousInternalErrors = libxml_use_internal_errors(true);
+        try {
+            $this->xml = new SimpleXMLElement($xml);
+        } catch (\Exception $e) {
+            throw new InvalidResponseException('The Fio API response is not valid XML.', $e->getCode(), $e);
+        } finally {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousInternalErrors);
+        }
     }
 
     public function getXml(): SimpleXMLElement

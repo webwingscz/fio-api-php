@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace FioApi;
 
+use Composer\CaBundle\CaBundle;
 use FioApi\Exceptions\MissingCertificateException;
+use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\ConnectException;
+use Psr\Http\Client\NetworkExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 
 abstract class Transferrer
 {
     protected UrlBuilder $urlBuilder;
-    protected ?ClientInterface $client;
     protected ?string $certificatePath = null;
     protected ?float $requestTimeout = null;
     protected ?float $connectTimeout = null;
@@ -22,11 +23,10 @@ abstract class Transferrer
     protected int $retryMaxDelayMs = 30000;
 
     protected function __construct(
-        string $token,
-        ?ClientInterface $client = null
+        #[\SensitiveParameter] string $token,
+        protected ?ClientInterface $client = null,
     ) {
         $this->urlBuilder = new UrlBuilder($token);
-        $this->client = $client;
     }
 
     public function setCertificatePath(string $path): void
@@ -59,7 +59,7 @@ abstract class Transferrer
         int $retryCount,
         int $initialDelayMs = 30000,
         float $backoffMultiplier = 2.0,
-        ?int $maxDelayMs = null
+        ?int $maxDelayMs = null,
     ): void {
         if ($retryCount < 0) {
             throw new \InvalidArgumentException('Retry count must be zero or a positive integer.');
@@ -91,15 +91,7 @@ abstract class Transferrer
             return $this->validateCertificatePath($this->certificatePath);
         }
 
-        if (class_exists('\Composer\CaBundle\CaBundle')) {
-            return $this->validateCertificatePath(\Composer\CaBundle\CaBundle::getSystemCaRootBundlePath());
-        } elseif (class_exists('\Kdyby\CurlCaBundle\CertificateHelper')) {
-            return $this->validateCertificatePath(\Kdyby\CurlCaBundle\CertificateHelper::getCaInfoFile());
-        }
-
-        throw new MissingCertificateException(
-            'No CA certificate bundle available. Install composer/ca-bundle or set certificate path manually.'
-        );
+        return $this->validateCertificatePath(CaBundle::getSystemCaRootBundlePath());
     }
 
     private function validateCertificatePath(string $certificatePath): string
@@ -115,10 +107,7 @@ abstract class Transferrer
 
     public function getClient(): ClientInterface
     {
-        if (isset($this->client) === false) {
-            $this->client = new \GuzzleHttp\Client();
-        }
-        return $this->client;
+        return $this->client ??= new Client();
     }
 
     /**
@@ -126,13 +115,16 @@ abstract class Transferrer
      */
     protected function requestWithRetry(string $method, string $url, array $options = []): ResponseInterface
     {
+        // HTTP methods are case sensitive and Guzzle 8 sends them exactly as given.
+        $normalizedMethod = strtoupper($method);
         $requestOptions = $this->applyDefaultRequestOptions($options);
         $delayMs = $this->retryInitialDelayMs;
 
         for ($attempt = 0; $attempt <= $this->retryCount; $attempt++) {
             try {
-                return $this->getClient()->request($method, $url, $requestOptions);
-            } catch (ConnectException $e) {
+                return $this->getClient()->request($normalizedMethod, $url, $requestOptions);
+            } catch (NetworkExceptionInterface $e) {
+                // No response was received, so the request can safely be sent again.
                 if ($attempt === $this->retryCount) {
                     throw $e;
                 }

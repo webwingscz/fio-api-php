@@ -6,56 +6,21 @@ namespace FioApi\Download\Entity;
 
 class TransactionList
 {
-    /** @var float */
-    protected $openingBalance;
-
-    /** @var float */
-    protected $closingBalance;
-
-    /** @var \DateTimeImmutable */
-    protected $dateStart;
-
-    /** @var \DateTimeImmutable */
-    protected $dateEnd;
-
-    /** @var float|null */
-    protected $idFrom;
-
-    /** @var float|null */
-    protected $idTo;
-
-    /** @var int|null */
-    protected $idLastDownload;
-
-    /** @var Account */
-    protected $account;
-
-    /** @var Transaction[] */
-    protected $transactions = [];
+    /** @var list<Transaction> */
+    protected array $transactions = [];
 
     protected function __construct(
-        float $openingBalance,
-        float $closingBalance,
-        \DateTimeImmutable $dateStart,
-        \DateTimeImmutable $dateEnd,
-        ?float $idFrom,
-        ?float $idTo,
-        ?int $idLastDownload,
-        Account $account
+        protected readonly float $openingBalance,
+        protected readonly float $closingBalance,
+        protected readonly \DateTimeImmutable $dateStart,
+        protected readonly \DateTimeImmutable $dateEnd,
+        protected readonly ?float $idFrom,
+        protected readonly ?float $idTo,
+        protected readonly ?int $idLastDownload,
+        protected readonly Account $account,
     ) {
-        $this->openingBalance = $openingBalance;
-        $this->closingBalance = $closingBalance;
-        $this->dateStart = $dateStart;
-        $this->dateEnd = $dateEnd;
-        $this->idFrom = $idFrom;
-        $this->idTo = $idTo;
-        $this->idLastDownload = $idLastDownload;
-        $this->account = $account;
     }
 
-    /**
-     * @param Transaction $transaction
-     */
     protected function addTransaction(Transaction $transaction): void
     {
         $this->transactions[] = $transaction;
@@ -63,9 +28,8 @@ class TransactionList
 
     /**
      * @param \stdClass $data Data from JSON API response
-     * @return TransactionList
      */
-    public static function create(\stdClass $data): TransactionList
+    public static function create(\stdClass $data): self
     {
         $account = new Account(
             $data->info->accountId,
@@ -134,7 +98,7 @@ class TransactionList
     }
 
     /**
-     * @return Transaction[]
+     * @return list<Transaction>
      */
     public function getTransactions(): array
     {

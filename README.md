@@ -38,7 +38,8 @@ foreach ($transactionList->getTransactions() as $transaction) {
 - `setRequestTimeout(float $seconds)` - total request timeout (`timeout` in Guzzle)
 - `setConnectTimeout(float $seconds)` - connection timeout (`connect_timeout` in Guzzle)
 - `configureRetry(int $retryCount, int $initialDelayMs = 30000, float $backoffMultiplier = 2.0, ?int $maxDelayMs = null)`
-  - retries only network/connect errors (`ConnectException`)
+  - retries only failures where no response was received (PSR-18 `NetworkExceptionInterface`, which covers
+    Guzzle's `ConnectException` as well as Guzzle 8's `NetworkTimeoutException`)
   - default initial delay is 30 seconds to respect Fio token rate limit
 
 ### Upload
@@ -57,15 +58,28 @@ if ($response->hasUploadSucceeded()) {
 ```
 
 
+### Custom HTTP client
+
+Both `Downloader` and `Uploader` accept an optional `GuzzleHttp\ClientInterface`, which is the seam for
+anything the library does not configure itself (proxy, `curl` options, HTTP version, logging middleware):
+
+```php
+$client = new GuzzleHttp\Client(['timeout' => 300]);
+$downloader = new FioApi\Download\Downloader('TOKEN@todo', $client);
+```
+
+Note that the Fio API endpoint advertises only `http/1.1` over ALPN, so HTTP/2 is never used even
+though Guzzle offers it.
+
 Requirements
 ------------
-Fio API PHP works with PHP 7.4 or higher.
+Fio API PHP works with PHP 8.3 or higher.
 
 Stability and compatibility (version 6)
 ---------------------------------------
 - Current major line: `6.x`
-- Supported PHP versions: `^7.4 || ^8.0`
-- Supported Guzzle versions: `~6.1 | ~7.0`
+- Supported PHP versions: `^8.3`
+- Supported Guzzle versions: `^7.0 || ^8.0`
 - Versioning policy: SemVer (`MAJOR.MINOR.PATCH`)
 - Backward compatibility:
   - No BC breaks in `6.x` patch/minor releases.
@@ -94,6 +108,28 @@ Jiří Dorazil - <https://www.webwings.cz>
 
 Changelog
 ----------
+
+## 6.1.0 (2026-07-28)
+- support **Guzzle 8** (`guzzlehttp/guzzle: ^7.0 || ^8.0`); the previous `~6.1 | ~7.0` constraint capped
+  consumers at Guzzle 7 and its Guzzle 6 support was untestable on modern PHP
+- **send HTTP methods in upper case.** Guzzle 8 no longer normalizes the request method, so the previous
+  `'get'` / `'post'` would have been sent to the Fio API verbatim
+- **retry and wrap every no-response failure**, not just `GuzzleHttp\Exception\ConnectException`.
+  Guzzle 8 classifies transport failures by phase, so a read timeout arrives as `NetworkTimeoutException`,
+  which does not extend `ConnectException`. The library now catches PSR-18 `NetworkExceptionInterface`,
+  which is correct on both Guzzle 7 and 8
+- raise the minimum PHP version to **8.3** and declare `psr/http-client` + `psr/http-message` explicitly
+- a malformed XML upload response now throws `InvalidResponseException` instead of leaking libxml
+  `E_WARNING`s alongside a bare `Exception`
+- mark every token parameter `#[\SensitiveParameter]` so tokens are redacted in stack traces
+- drop the dead `Kdyby\CurlCaBundle` certificate fallback (`composer/ca-bundle` is a hard dependency)
+- modernize the codebase for PHP 8.3: readonly promoted constructor properties on the download entities,
+  native `static` return types on the fluent payment-order setters, nullsafe operators, `never` return type
+- dev tooling: PHPUnit 9 → 11/12 with attribute metadata instead of doc-comment annotations; coverage is
+  now opt-in via `composer test-coverage`, so `composer test` no longer aborts without a coverage driver
+- CI: resolve dependencies with `composer update` (a library does not commit `composer.lock`, so
+  `composer install` and `composer audit --locked` could not work), test PHP 8.3/8.4, lowest and highest
+  dependencies, and Guzzle 7 and 8 separately
 
 ## 6.0.0 (2026-03-05)
 - add configurable base URL (`setBaseUrl`) for sandbox/proxy/testing scenarios

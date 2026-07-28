@@ -114,15 +114,13 @@ class PaymentOrderInternational extends PaymentOrderForeign
         return $this->remittanceInfo4 ?? null;
     }
 
-    /** @return static */
-    protected function setDetailsOfCharges(int $detailsOfCharges)
+    protected function setDetailsOfCharges(int $detailsOfCharges): static
     {
         $this->detailsOfCharges = static::validateValueIsInList($detailsOfCharges, static::CHARGES_TYPES);
         return $this;
     }
 
-    /** @return static */
-    protected function setRemittanceInfo4(string $remittanceInfo4)
+    protected function setRemittanceInfo4(string $remittanceInfo4): static
     {
         $this->remittanceInfo4 = static::validateStringMaxLength($remittanceInfo4, static::REMITTANCE_INFO_MAX_LENGTH);
         return $this;

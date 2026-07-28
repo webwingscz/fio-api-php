@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace FioApi\Upload\Entity;
 
+use PHPUnit\Framework\Attributes\Depends;
+
 class PaymentOrderListTest extends \PHPUnit\Framework\TestCase
 {
     public function testAddPaymentOrderToPaymentOrderList(): PaymentOrderList
     {
         $paymentOrderList = new PaymentOrderList();
-        $paymentOrderList->addPaymentOrder($this->createStub(PaymentOrderCzech::class));
+        $paymentOrderList->addPaymentOrder(self::createStub(PaymentOrderCzech::class));
 
         self::assertInstanceOf(PaymentOrderCzech::class, $paymentOrderList->getPaymentOrders()[0]);
 
@@ -23,17 +25,13 @@ class PaymentOrderListTest extends \PHPUnit\Framework\TestCase
         self::assertTrue($paymentOrderList->isEmpty());
     }
 
-    /**
-     * @depends testAddPaymentOrderToPaymentOrderList
-     */
+    #[Depends('testAddPaymentOrderToPaymentOrderList')]
     public function testIsEmptyReturnsFalseIfPaymentOrderAlreadyAdded(PaymentOrderList $paymentOrderList): void
     {
         self::assertFalse($paymentOrderList->isEmpty());
     }
 
-    /**
-     * @depends testAddPaymentOrderToPaymentOrderList
-     */
+    #[Depends('testAddPaymentOrderToPaymentOrderList')]
     public function testClearDeleteAllPaymentOrders(PaymentOrderList $paymentOrderList): void
     {
         $paymentOrderList->clear();

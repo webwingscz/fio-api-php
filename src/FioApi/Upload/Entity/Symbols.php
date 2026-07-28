@@ -39,22 +39,19 @@ trait Symbols
         return $this->specificSymbol ?? null;
     }
 
-    /** @return static */
-    protected function setConstantSymbol(string $constantSymbol)
+    protected function setConstantSymbol(string $constantSymbol): static
     {
         $this->constantSymbol = static::validateSymbol($constantSymbol, 4);
         return $this;
     }
 
-    /** @return static */
-    protected function setVariableSymbol(string $variableSymbol)
+    protected function setVariableSymbol(string $variableSymbol): static
     {
         $this->variableSymbol = static::validateSymbol($variableSymbol, 10);
         return $this;
     }
 
-    /** @return static */
-    protected function setSpecificSymbol(string $specificSymbol)
+    protected function setSpecificSymbol(string $specificSymbol): static
     {
         $this->specificSymbol = static::validateSymbol($specificSymbol, 10);
         return $this;

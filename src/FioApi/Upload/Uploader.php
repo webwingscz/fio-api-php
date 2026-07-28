@@ -6,12 +6,12 @@ namespace FioApi\Upload;
 
 use FioApi\Exceptions\MissingPaymentOrderException;
 use FioApi\Exceptions\UnexpectedPaymentOrderValueException;
-use FioApi\Upload\Entity\PaymentOrderList;
 use FioApi\Transferrer;
+use FioApi\Upload\Entity\PaymentOrder;
+use FioApi\Upload\Entity\PaymentOrderList;
+use FioApi\Upload\Entity\UploadResponse;
 use FioApi\Upload\FileBuilder\FileBuilder;
 use FioApi\Upload\FileBuilder\XmlFileBuilder;
-use FioApi\Upload\Entity\PaymentOrder;
-use FioApi\Upload\Entity\UploadResponse;
 use GuzzleHttp\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -20,18 +20,16 @@ class Uploader extends Transferrer
     protected const ACCOUNT_FROM_MAX_LENGTH = 16;
 
     protected string $accountFrom;
-    protected ?FileBuilder $fileBuilder;
     protected PaymentOrderList $paymentOrderList;
 
     public function __construct(
-        string $token,
+        #[\SensitiveParameter] string $token,
         string $accountFrom,
         ?ClientInterface $client = null,
-        ?FileBuilder $fileBuilder = null
+        protected ?FileBuilder $fileBuilder = null,
     ) {
         parent::__construct($token, $client);
         $this->accountFrom = static::validateAccountFrom($accountFrom);
-        $this->fileBuilder = $fileBuilder;
     }
 
     public function addPaymentOrder(PaymentOrder $paymentOrder): void
@@ -39,7 +37,7 @@ class Uploader extends Transferrer
         $this->getPaymentOrderList()->addPaymentOrder($paymentOrder);
     }
 
-    public function uploadPaymentOrders(): Entity\UploadResponse
+    public function uploadPaymentOrders(): UploadResponse
     {
         if ($this->getPaymentOrderList()->isEmpty()) {
             throw new MissingPaymentOrderException('You have to add at least one payment order before uploading.');
@@ -52,25 +50,20 @@ class Uploader extends Transferrer
 
     public function getPaymentOrderList(): PaymentOrderList
     {
-        if (isset($this->paymentOrderList) === false) {
-            $this->paymentOrderList = new PaymentOrderList();
-        }
-        return $this->paymentOrderList;
+        return $this->paymentOrderList ??= new PaymentOrderList();
     }
 
     public function getFileBuilder(): FileBuilder
     {
-        if ($this->fileBuilder === null) {
-            $this->fileBuilder = new XmlFileBuilder();
-        }
-        return $this->fileBuilder;
+        return $this->fileBuilder ??= new XmlFileBuilder();
     }
 
     protected function sendRequest(): ResponseInterface
     {
         $url = $this->urlBuilder->buildUploadUrl();
+        $fileBuilder = $this->getFileBuilder();
 
-        return $this->requestWithRetry('post', $url, [
+        return $this->requestWithRetry('POST', $url, [
             'verify' => $this->getCertificatePath(),
             'multipart' => [
                 [
@@ -79,15 +72,15 @@ class Uploader extends Transferrer
                 ],
                 [
                     'name'     => 'type',
-                    'contents' => $this->getFileBuilder()->getFileType()
+                    'contents' => $fileBuilder->getFileType()
                 ],
                 [
                     'name'     => 'file',
-                    'contents' => $this->getFileBuilder()->createFromPaymentOrderList(
+                    'contents' => $fileBuilder->createFromPaymentOrderList(
                         $this->getPaymentOrderList(),
                         $this->accountFrom
                     ),
-                    'filename' => 'request.' . $this->getFileBuilder()->getFileType()
+                    'filename' => 'request.' . $fileBuilder->getFileType()
                 ],
                 [
                     'name'     => 'lng',

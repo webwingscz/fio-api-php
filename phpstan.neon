@@ -8,3 +8,6 @@ parameters:
 	paths:
 		- src
 		- tests
+	typeAliases:
+		# Shape of the container filled by GuzzleHttp\Middleware::history().
+		GuzzleHistory: 'array<int, array{request: Psr\Http\Message\RequestInterface, response: Psr\Http\Message\ResponseInterface|null, error: mixed, options: array<string, mixed>}>'

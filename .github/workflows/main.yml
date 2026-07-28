@@ -2,45 +2,27 @@ name: CI build
 on: [ push, pull_request ]
 jobs:
     build:
-        name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }} ${{ matrix.extra-label }}
+        name: PHP ${{ matrix.php-versions }} / ${{ matrix.dependencies }} deps on ${{ matrix.operating-system }}
         runs-on: ${{ matrix.operating-system }}
         strategy:
             fail-fast: false
             matrix:
                 operating-system: [ ubuntu-latest ]
-                php-versions: [ '7.4', '8.0', '8.1', '8.2', '8.3', '8.4' ]
-                extra-label: [ '' ]
+                php-versions: [ '8.3', '8.4' ]
+                dependencies: [ 'highest' ]
                 include:
-
-                    # Windows
-                    -   php-versions: '7.4'
-                        operating-system: windows-latest
-                        coverage: xdebug
-
-                    # Windows
-                    -   php-versions: '8.0'
-                        operating-system: windows-latest
-                        coverage: xdebug
-
-                    # Windows
-                    -   php-versions: '8.1'
-                        operating-system: windows-latest
-                        coverage: xdebug
-
-                    # Windows
-                    -   php-versions: '8.2'
-                        operating-system: windows-latest
-                        coverage: xdebug
+                    # Lowest allowed dependencies, so the composer.json floors stay honest.
+                    -   php-versions: '8.3'
+                        operating-system: ubuntu-latest
+                        dependencies: 'lowest'
 
                     # Windows
                     -   php-versions: '8.3'
                         operating-system: windows-latest
-                        coverage: xdebug
-
-                    # Windows
+                        dependencies: 'highest'
                     -   php-versions: '8.4'
                         operating-system: windows-latest
-                        coverage: xdebug
+                        dependencies: 'highest'
 
         steps:
             # see https://github.com/actions/checkout/issues/226#issue-606867805
@@ -56,7 +38,7 @@ jobs:
                     php-version: ${{ matrix.php-versions }}
                     ini-values: memory_limit=-1
                     tools: composer:v2
-                    coverage: ${{ matrix.coverage }}
+                    coverage: none
 
             -   name: Get composer cache directory
                 id: composer-cache
@@ -67,25 +49,78 @@ jobs:
                 uses: actions/cache@v4
                 with:
                     path: ${{ steps.composer-cache.outputs.dir }}
-                    key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+                    key: ${{ runner.os }}-composer-${{ matrix.php-versions }}-${{ matrix.dependencies }}-${{ hashFiles('**/composer.json') }}
                     restore-keys: ${{ runner.os }}-composer-
 
+            # This is a library, so composer.lock is not committed and dependencies are resolved per job.
             -   name: Install Composer dependencies
-                run: composer install --no-progress --prefer-dist --optimize-autoloader
+                run: composer update --no-progress --prefer-dist --optimize-autoloader ${{ matrix.dependencies == 'lowest' && '--prefer-lowest' || '' }}
 
             -   name: Run CI Build
                 run: composer ci
 
-            - name: Upload coverage results to Coveralls
-              env:
-                  COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: |
-                  composer global require php-coveralls/php-coveralls
-                  php-coveralls --coverage_clover=build/logs/clover.xml -v
+    guzzle:
+        name: Guzzle ${{ matrix.guzzle }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                guzzle: [ '^7.0', '^8.0' ]
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+
+            -   name: Setup PHP, with composer and extensions
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '8.3'
+                    ini-values: memory_limit=-1
+                    tools: composer:v2
+                    coverage: none
+
+            -   name: Install Composer dependencies
+                run: composer update --with "guzzlehttp/guzzle:${{ matrix.guzzle }}" --no-progress --prefer-dist
+
+            -   name: Verify the resolved Guzzle version
+                run: composer show guzzlehttp/guzzle | grep '^versions'
+
+            -   name: Static analysis
+                run: composer phpstan
+
+            -   name: Tests
+                run: composer test
+
+    coverage:
+        name: Coverage
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+
+            -   name: Setup PHP, with composer and extensions
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '8.3'
+                    ini-values: memory_limit=-1
+                    tools: composer:v2
+                    coverage: xdebug
+
+            -   name: Install Composer dependencies
+                run: composer update --no-progress --prefer-dist
+
+            -   name: Tests with coverage
+                run: composer test-coverage
+
+            -   name: Upload coverage results to Coveralls
+                env:
+                    COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    composer global require php-coveralls/php-coveralls
+                    php-coveralls --coverage_clover=build/logs/clover.xml -v
 
     release:
         name: Create GitHub Release
-        needs: build
+        needs: [ build, guzzle ]
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && !contains(github.ref_name, '-rc') }}
         runs-on: ubuntu-latest
         permissions:

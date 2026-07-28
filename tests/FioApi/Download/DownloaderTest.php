@@ -6,6 +6,7 @@ namespace FioApi\Download;
 
 use FioApi\Exceptions\ConnectionException;
 use FioApi\Exceptions\InvalidResponseException;
+use FioApi\Fixture\NetworkFailure;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Handler\MockHandler;
@@ -80,7 +81,7 @@ class DownloaderTest extends \PHPUnit\Framework\TestCase
 
     public function testDownloaderSetsLastId(): void
     {
-        /** @var array<int, array{request: \Psr\Http\Message\RequestInterface}> $container */
+        /** @var GuzzleHistory $container */
         $container = [];
         $history = Middleware::history($container);
 
@@ -101,6 +102,25 @@ class DownloaderTest extends \PHPUnit\Framework\TestCase
         Assert::assertSame('https://fioapi.fio.cz/v1/rest/set-last-id/validToken/123456/', (string) $request->getUri());
     }
 
+    public function testDownloaderSendsUppercaseHttpMethod(): void
+    {
+        /** @var GuzzleHistory $container */
+        $container = [];
+        $history = Middleware::history($container);
+        $handler = HandlerStack::create(new MockHandler([
+            new Response(200, [], (string) file_get_contents(__DIR__ . '/data/example-response.json')),
+        ]));
+        $handler->push($history);
+        $downloader = new Downloader('validToken', new Client(['handler' => $handler]));
+
+        $downloader->downloadLast();
+
+        Assert::assertIsArray($container);
+        Assert::assertCount(1, $container);
+        // Guzzle 8 sends the method verbatim, so a lowercase "get" would reach the Fio API as-is.
+        Assert::assertSame('GET', $container[0]['request']->getMethod());
+    }
+
     public function testConnectionIssueResultsInConnectionException(): void
     {
         $handler = HandlerStack::create(new MockHandler([
@@ -115,7 +135,7 @@ class DownloaderTest extends \PHPUnit\Framework\TestCase
 
     public function testDownloaderRetriesConnectionExceptionWhenConfigured(): void
     {
-        /** @var array<int, array{request: \Psr\Http\Message\RequestInterface}> $container */
+        /** @var GuzzleHistory $container */
         $container = [];
         $history = Middleware::history($container);
         $handler = HandlerStack::create(new MockHandler([
@@ -129,12 +149,45 @@ class DownloaderTest extends \PHPUnit\Framework\TestCase
         $transactionList = $downloader->downloadSince(new \DateTimeImmutable('-1 week'));
 
         Assert::assertCount(3, $transactionList->getTransactions());
-        Assert::assertCount(2, (array) $container);
+        Assert::assertIsArray($container);
+        Assert::assertCount(2, $container);
+    }
+
+    public function testNetworkFailureWithoutConnectExceptionResultsInConnectionException(): void
+    {
+        $handler = HandlerStack::create(new MockHandler([
+            new NetworkFailure(new Request('GET', '/')),
+        ]));
+        $downloader = new Downloader('validToken', new Client(['handler' => $handler]));
+
+        $this->expectException(ConnectionException::class);
+
+        $downloader->downloadSince(new \DateTimeImmutable('-1 week'));
+    }
+
+    public function testDownloaderRetriesAnyNetworkFailureWhenConfigured(): void
+    {
+        /** @var GuzzleHistory $container */
+        $container = [];
+        $history = Middleware::history($container);
+        $handler = HandlerStack::create(new MockHandler([
+            new NetworkFailure(new Request('GET', '/')),
+            new Response(200, [], (string) file_get_contents(__DIR__ . '/data/example-response.json')),
+        ]));
+        $handler->push($history);
+        $downloader = new Downloader('validToken', new Client(['handler' => $handler]));
+        $downloader->configureRetry(1, 0);
+
+        $transactionList = $downloader->downloadSince(new \DateTimeImmutable('-1 week'));
+
+        Assert::assertCount(3, $transactionList->getTransactions());
+        Assert::assertIsArray($container);
+        Assert::assertCount(2, $container);
     }
 
     public function testConfiguredTimeoutsArePassedToRequestOptions(): void
     {
-        /** @var array<int, array{options: array<string, mixed>}> $container */
+        /** @var GuzzleHistory $container */
         $container = [];
         $history = Middleware::history($container);
         $handler = HandlerStack::create(new MockHandler([
@@ -147,7 +200,8 @@ class DownloaderTest extends \PHPUnit\Framework\TestCase
 
         $downloader->downloadSince(new \DateTimeImmutable('-1 week'));
 
-        Assert::assertCount(1, (array) $container);
+        Assert::assertIsArray($container);
+        Assert::assertCount(1, $container);
         Assert::assertSame(10.5, $container[0]['options']['timeout']);
         Assert::assertSame(2.5, $container[0]['options']['connect_timeout']);
     }

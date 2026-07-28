@@ -101,57 +101,49 @@ abstract class PaymentOrderForeign extends PaymentOrder
         return $this->remittanceInfo3 ?? null;
     }
 
-    /** @return static */
-    protected function setBic(string $bic)
+    protected function setBic(string $bic): static
     {
         $this->bic = static::validateBic($bic);
         return $this;
     }
 
-    /** @return static */
-    protected function setBenefName(string $benefName)
+    protected function setBenefName(string $benefName): static
     {
         $this->benefName = static::validateStringMaxLength($benefName, static::BENEF_NAME_MAX_LENGTH);
         return $this;
     }
 
-    /** @return static */
-    protected function setBenefStreet(string $benefStreet)
+    protected function setBenefStreet(string $benefStreet): static
     {
         $this->benefStreet = static::validateStringMaxLength($benefStreet, static::BENEF_STREET_MAX_LENGTH);
         return $this;
     }
 
-    /** @return static */
-    protected function setBenefCity(string $benefCity)
+    protected function setBenefCity(string $benefCity): static
     {
         $this->benefCity = static::validateStringMaxLength($benefCity, static::BENEF_CITY_MAX_LENGTH);
         return $this;
     }
 
-    /** @return static */
-    protected function setBenefCountry(string $benefCountry)
+    protected function setBenefCountry(string $benefCountry): static
     {
         $this->benefCountry = static::validateBenefCountry($benefCountry);
         return $this;
     }
 
-    /** @return static */
-    protected function setRemittanceInfo1(string $remittanceInfo1)
+    protected function setRemittanceInfo1(string $remittanceInfo1): static
     {
         $this->remittanceInfo1 = static::validateStringMaxLength($remittanceInfo1, static::REMITTANCE_INFO_MAX_LENGTH);
         return $this;
     }
 
-    /** @return static */
-    protected function setRemittanceInfo2(string $remittanceInfo2)
+    protected function setRemittanceInfo2(string $remittanceInfo2): static
     {
         $this->remittanceInfo2 = static::validateStringMaxLength($remittanceInfo2, static::REMITTANCE_INFO_MAX_LENGTH);
         return $this;
     }
 
-    /** @return static */
-    protected function setRemittanceInfo3(string $remittanceInfo3)
+    protected function setRemittanceInfo3(string $remittanceInfo3): static
     {
         $this->remittanceInfo3 = static::validateStringMaxLength($remittanceInfo3, static::REMITTANCE_INFO_MAX_LENGTH);
         return $this;
